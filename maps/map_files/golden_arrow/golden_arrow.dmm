@@ -666,10 +666,10 @@
 	},
 /area/golden_arrow/hangar)
 "dE" = (
-/obj/structure/surface/table/reinforced/prison,
 /obj/structure/machinery/light{
 	dir = 4
 	},
+/obj/structure/reagent_dispensers/fueltank/custom,
 /turf/open/floor/almayer{
 	icon_state = "sterile_green"
 	},
@@ -778,7 +778,7 @@
 /area/golden_arrow/hangar)
 "eJ" = (
 /obj/structure/machinery/power/apc/almayer,
-/obj/structure/surface/table/reinforced/prison,
+/obj/structure/machinery/iv_drip,
 /turf/open/floor/almayer{
 	icon_state = "sterile_green"
 	},
@@ -2733,6 +2733,12 @@
 	},
 /turf/open/floor/almayer,
 /area/golden_arrow/platoon_commander_rooms)
+"qV" = (
+/obj/structure/machinery/iv_drip,
+/turf/open/floor/almayer{
+	icon_state = "sterile_green"
+	},
+/area/golden_arrow/medical)
 "qW" = (
 /obj/structure/surface/table/almayer,
 /obj/item/storage/toolbox/mechanical/green{
@@ -6125,7 +6131,7 @@
 	},
 /area/golden_arrow/cryo_cells)
 "Mj" = (
-/obj/structure/surface/table/reinforced/prison,
+/obj/structure/machinery/optable,
 /turf/open/floor/almayer{
 	icon_state = "sterile_green"
 	},
@@ -20198,7 +20204,7 @@ uF
 OA
 OA
 dm
-Mj
+qV
 Nf
 gG
 OA
