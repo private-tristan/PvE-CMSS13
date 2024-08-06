@@ -60,7 +60,6 @@
 /obj/item/ammo_box/magazine/heap/empty
 	empty = TRUE
 
-
 /obj/item/ammo_box/magazine/mk1
 	name = "magazine box (M41A MK1 X 10)"
 	flags_equip_slot = SLOT_BACK
@@ -70,6 +69,19 @@
 	allowed_magazines = list(/obj/item/ammo_magazine/rifle/m41aMK1/recon)
 
 /obj/item/ammo_box/magazine/mk1/empty
+	empty = TRUE
+
+//-----------------------XM51 Breaching Scattergun Mag Box-----------------------
+
+/obj/item/ammo_box/magazine/xm51
+	name = "\improper magazine box (XM51 x 8)"
+	icon_state = "base_breach"
+	flags_equip_slot = SLOT_BACK
+	overlay_gun_type = "_xm51"
+	num_of_magazines = 8
+	magazine_type = /obj/item/ammo_magazine/rifle/xm51
+
+/obj/item/ammo_box/magazine/xm51/empty
 	empty = TRUE
 
 //-----------------------M39 Rifle Mag Boxes-----------------------

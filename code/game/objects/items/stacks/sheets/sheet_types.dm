@@ -257,11 +257,15 @@ var/global/list/datum/stack_recipe/cardboard_recipes = list ( \
 		new/datum/stack_recipe("empty magazine box (M41A LE)", /obj/item/ammo_box/magazine/le/empty), \
 		new/datum/stack_recipe("empty magazine box (M41A MK1)", /obj/item/ammo_box/magazine/mk1/empty), \
 		null, \
+		new/datum/stack_recipe("empty magazine box (XM51)", /obj/item/ammo_box/magazine/xm51/empty), \
+		null, \
 		new/datum/stack_recipe("empty shotgun shell box (Beanbag)", /obj/item/ammo_box/magazine/shotgun/beanbag/empty), \
 		new/datum/stack_recipe("empty shotgun shell box (Buckshot)", /obj/item/ammo_box/magazine/shotgun/buckshot/empty), \
 		new/datum/stack_recipe("empty shotgun shell box (Flechette)", /obj/item/ammo_box/magazine/shotgun/flechette/empty), \
 		new/datum/stack_recipe("empty shotgun shell box (Incendiary)", /obj/item/ammo_box/magazine/shotgun/incendiary/empty), \
 		new/datum/stack_recipe("empty shotgun shell box (Slugs)", /obj/item/ammo_box/magazine/shotgun/empty), \
+		null, \
+		new/datum/stack_recipe("empty shotgun shell box (16g) (Breaching)", /obj/item/ammo_box/magazine/shotgun/light/breaching/empty), \
 		null, \
 		new/datum/stack_recipe("empty 45-70 bullets box", /obj/item/ammo_box/magazine/lever_action/empty), \
 		new/datum/stack_recipe("empty 45-70 bullets box (Blanks)", /obj/item/ammo_box/magazine/lever_action/training/empty), \

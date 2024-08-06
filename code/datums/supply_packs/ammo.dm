@@ -240,6 +240,16 @@
 	containername = "\improper shotgun flechette crate"
 	group = "Ammo"
 
+/datum/supply_packs/ammo_shell_box_breaching
+	name = "Shell box (16g) (120x breaching shells)"
+	contains = list(
+		/obj/item/ammo_box/magazine/shotgun/light/breaching,
+	)
+	cost = 40
+	containertype = /obj/structure/closet/crate/ammo
+	containername = "\improper shotgun breaching crate"
+	group = "Ammo"
+
 //------------------------For 88M4 ----------------
 
 /datum/supply_packs/ammo_mod88_mag_box_ap

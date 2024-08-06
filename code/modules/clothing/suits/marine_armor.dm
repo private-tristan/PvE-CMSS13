@@ -78,6 +78,7 @@
 		/obj/item/device/motiondetector,
 		/obj/item/device/walkman,
 		/obj/item/storage/belt/gun/m39,
+		/obj/item/storage/belt/gun/xm51,
 	)
 	valid_accessory_slots = list(ACCESSORY_SLOT_MEDAL, ACCESSORY_SLOT_PONCHO)
 
@@ -427,7 +428,7 @@
 
 	if(is_type_in_list(equipping_item, smartgun_back))
 		return
-		
+
 	. = COMPONENT_HUMAN_CANCEL_ATTEMPT_EQUIP
 
 	if(equipping_item.flags_equip_slot == SLOT_BACK)
