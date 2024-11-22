@@ -1,5 +1,5 @@
 /obj/item/hardpoint/support/flare_launcher
-	name = "M-87F Flare Launcher"
+	name = "\improper M-87F Flare Launcher"
 	desc = "A support module for APCs that shoots flares."
 	icon = 'icons/obj/vehicles/hardpoints/apc.dmi'
 
@@ -8,16 +8,12 @@
 	disp_icon_state = "flare_launcher"
 	activation_sounds = list('sound/weapons/gun_m92_attachable.ogg')
 
-	damage_multiplier = 0.1
+	damage_multiplier = 0.15
 
 	activatable = TRUE
 
-	health = 500
-	cooldown = 30
-	accuracy = 0.7
+	health = 1500
 	firing_arc = 120
-
-	origins = list(0, -2)
 
 	allowed_seat = VEHICLE_DRIVER
 
@@ -34,6 +30,9 @@
 		"4" = list(-14, -6),
 		"8" = list(14, -6)
 	)
+
+	scatter = 6
+	fire_delay = 3.0 SECONDS
 
 /obj/item/hardpoint/support/flare_launcher/set_bullet_traits()
 	..()

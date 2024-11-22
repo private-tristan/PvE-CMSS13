@@ -409,6 +409,10 @@
 	icon = 'icons/obj/structures/doors/securedoor.dmi'
 	req_access = list(ACCESS_MARINE_COMMAND)
 
+/obj/structure/machinery/door/airlock/almayer/secure/glass
+	name = "\improper Secure Airlock"
+	icon = 'icons/obj/structures/doors/securedoor_glass.dmi'
+
 /obj/structure/machinery/door/airlock/almayer/secure/colony
 	req_access = null
 	req_one_access = list(ACCESS_CIVILIAN_PUBLIC)
@@ -494,6 +498,12 @@
 	icon = 'icons/obj/structures/doors/medidoor.dmi'
 	req_access = list()
 	req_one_access = list(ACCESS_MARINE_MEDBAY, ACCESS_MARINE_COMMAND)
+
+/obj/structure/machinery/door/airlock/almayer/medical/plain
+	name = "\improper Airlock"
+	icon = 'icons/obj/structures/doors/medidoor_plain.dmi'
+	req_access = null
+	req_one_access = list(ACCESS_CIVILIAN_MEDBAY, ACCESS_CIVILIAN_RESEARCH, ACCESS_CIVILIAN_COMMAND, ACCESS_CIVILIAN_PUBLIC)
 
 /obj/structure/machinery/door/airlock/almayer/medical/colony
 	req_access = null
@@ -883,6 +893,10 @@
 	icon = 'icons/obj/structures/doors/dropship2_side.dmi' //Tiles with is here FOR SAFETY PURPOSES
 	id = "sh_dropship2"
 
+/obj/structure/machinery/door/airlock/dropship_hatch/upp
+	icon = 'icons/obj/structures/doors/dropshipupp_side.dmi' //Tiles with is here FOR SAFETY PURPOSES
+
+
 /obj/structure/machinery/door/airlock/dropship_hatch/monorail
 	icon = 'icons/obj/structures/doors/pod_doors.dmi' //TEMPLATE NEED TO REPLACE LATER
 	name = "monorail door"
@@ -900,6 +914,15 @@
 
 /obj/structure/machinery/door/airlock/hatch/cockpit/two
 	icon = 'icons/obj/structures/doors/dropship2_pilot.dmi'
+
+/obj/structure/machinery/door/airlock/hatch/cockpit/three
+	icon = 'icons/obj/structures/doors/dropship3_pilot.dmi'
+
+/obj/structure/machinery/door/airlock/hatch/cockpit/four
+	icon = 'icons/obj/structures/doors/dropship4_pilot.dmi'
+
+/obj/structure/machinery/door/airlock/hatch/cockpit/upp
+	icon = 'icons/obj/structures/doors/dropshipupp_pilot.dmi'
 
 //PRISON AIRLOCKS
 /obj/structure/machinery/door/airlock/prison

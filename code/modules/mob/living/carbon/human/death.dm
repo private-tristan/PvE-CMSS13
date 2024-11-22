@@ -10,13 +10,16 @@
 			// Override the current limb status
 			E.droplimb(0, 0, cause)
 
-	undefibbable = TRUE
+
 
 	GLOB.data_core.manifest_modify(real_name, WEAKREF(src), null, null, "*Deceased*")
 
 	if(is_a_synth)
 		spawn_gibs()
 		return
+
+	undefibbable = TRUE
+
 	..()
 
 /mob/living/carbon/human/gib_animation()
@@ -37,7 +40,7 @@
 /mob/living/carbon/human/dust_animation()
 	new /obj/effect/overlay/temp/dust_animation(loc, src, "dust-h")
 
-/mob/living/carbon/human/death(cause, gibbed)
+/mob/living/carbon/human/death(cause, gibbed, should_deathmessage = TRUE)
 	if(stat == DEAD)
 		species?.handle_dead_death(src, gibbed)
 		return
@@ -48,12 +51,13 @@
 		if(HAS_TRAIT(src, TRAIT_HARDCORE) || MODE_HAS_TOGGLEABLE_FLAG(MODE_HARDCORE_PERMA))
 			if(!(species.flags & IS_SYNTHETIC)) // Synths wont perma
 				status_flags |= PERMANENTLY_DEAD
+				should_deathmessage = FALSE
 		if(HAS_TRAIT(src, TRAIT_INTENT_EYES)) //their eyes need to be 'offline'
 			r_eyes = 0
 			g_eyes = 0
 			b_eyes = 0
 		disable_special_flags()
-		disable_lights()
+//		disable_lights()
 		disable_special_items()
 		disable_headsets() //Disable radios for dead people to reduce load
 
@@ -75,15 +79,23 @@
 	// Finding the last guy for anti-delay.
 	if(SSticker.mode && SSticker.mode.is_in_endgame && SSticker.current_state != GAME_STATE_FINISHED && is_mainship_level(z))
 		var/mob/last_living_human
+		var/shipside_humans_count = 0
+		var/datum/hive_status/main_hive = GLOB.hive_datum[XENO_HIVE_NORMAL]
+		var/see_humans_on_tacmap = main_hive.see_humans_on_tacmap
 		for(var/mob/living/carbon/human/cur_human as anything in GLOB.alive_human_list)
 			if(!is_mainship_level(cur_human.z))
 				continue
-			if(last_living_human)
+			shipside_humans_count++
+			if(last_living_human && see_humans_on_tacmap)
 				last_living_human = null
 				break
 			last_living_human = cur_human
-		if(last_living_human && (last_qm_callout + 2 MINUTES) < world.time)
-			last_qm_callout = world.time
+
+		if(!see_humans_on_tacmap && shipside_humans_count < (main_hive.get_real_total_xeno_count() * HIJACK_RATIO_FOR_TACMAP))
+			xeno_announcement("There is only a handful of tallhosts left, they are now visible on our hive mind map.", XENO_HIVE_NORMAL, SPAN_ANNOUNCEMENT_HEADER_BLUE("[QUEEN_MOTHER_ANNOUNCE]"))
+			main_hive.see_humans_on_tacmap = TRUE
+		if(last_living_human && shipside_humans_count <= 1 && (GLOB.last_qm_callout + 2 MINUTES) < world.time)
+			GLOB.last_qm_callout = world.time
 			// Tell the xenos where the human is.
 			xeno_announcement("I sense the last tallhost hiding in [get_area(last_living_human)].", XENO_HIVE_NORMAL, SPAN_ANNOUNCEMENT_HEADER_BLUE("[QUEEN_MOTHER_ANNOUNCE]"))
 			// Tell the human he is the last guy.
@@ -110,7 +122,7 @@
 	if(HAS_TRAIT(src, TRAIT_HARDCORE))
 		death_message = "valiantly falls to the ground, dead, unable to continue."
 
-	. = ..(cause, gibbed, death_message)
+	. = ..(cause, gibbed, death_message, should_deathmessage)
 
 	// stat is now set
 	/*
@@ -121,4 +133,6 @@
 	else if(death_data?.cause_name == "existing")
 		// Corpses spawn as gibbed true to avoid sfx, even though they aren't actually gibbed...
 		AddComponent(/datum/component/weed_food)
+
+	update_execute_hud()
 	*/

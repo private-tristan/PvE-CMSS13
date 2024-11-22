@@ -10,6 +10,9 @@
 
 //drones expand the hive
 /datum/xeno_ai_movement/drone/ai_move_idle(delta_time)
+	if(!GLOB.ai_xeno_weeding)
+		return ..()
+
 	var/mob/living/carbon/xenomorph/idle_xeno = parent
 
 	if(idle_xeno.throwing)
@@ -21,7 +24,7 @@
 			return
 
 		if(get_dist(home_turf, idle_xeno) <= 0)
-			var/datum/action/xeno_action/onclick/plant_weeds/plant_weed_action = get_xeno_action_by_type(parent, /datum/action/xeno_action/onclick/plant_weeds)
+			var/datum/action/xeno_action/onclick/plant_weeds/plant_weed_action = get_action(parent, /datum/action/xeno_action/onclick/plant_weeds)
 			INVOKE_ASYNC(plant_weed_action, TYPE_PROC_REF(/datum/action/xeno_action/onclick/plant_weeds, use_ability_wrapper))
 			home_turf = null
 			return
@@ -50,11 +53,10 @@
 		home_turf = potential_home
 
 	if(!home_turf)
-		if(!idle_xeno.resting)
-			idle_xeno.lay_down()
+		idle_xeno.set_resting(TRUE, FALSE, TRUE)
 		return
 
-	idle_xeno.resting = FALSE
+	idle_xeno.set_resting(FALSE, FALSE, TRUE)
 
 	if(home_turf == last_home_turf)
 		blacklisted_turfs += home_turf
@@ -79,13 +81,15 @@
 	if(checked_turf in blacklisted_turfs)
 		return FALSE
 
-	if(checked_turf.weeds)
+	var/obj/effect/alien/weeds/checked_weeds = checked_turf.weeds
+	if(checked_weeds && IS_SAME_HIVENUMBER(checked_weeds, parent))
 		return FALSE
 
 	if(checked_turf.is_weedable() < FULLY_WEEDABLE)
 		return FALSE
 
-	if(locate(/obj/effect/alien/weeds/node) in range(3, checked_turf))
+	var/obj/effect/alien/weeds/found_weeds = locate(/obj/effect/alien/weeds/node) in range(3, checked_turf)
+	if(found_weeds && IS_SAME_HIVENUMBER(found_weeds, parent))
 		return FALSE
 
 	if(checked_turf.density)

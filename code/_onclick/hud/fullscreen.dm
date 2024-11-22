@@ -61,6 +61,12 @@
 			else
 				client.remove_from_screen(screen)
 
+/mob/proc/get_maximum_view_range()
+	if(!client)
+		return world.view
+
+	var/offset = max(abs(client.pixel_x), abs(client.pixel_y))
+	return client.view + offset / 32
 
 /atom/movable/screen/fullscreen
 	icon = 'icons/mob/hud/screen1_full.dmi'
@@ -108,6 +114,9 @@
 	icon_state = "passage"
 	layer = FULLSCREEN_CRIT_LAYER
 
+/atom/movable/screen/fullscreen/crit/dark
+	color = COLOR_GRAY
+
 /atom/movable/screen/fullscreen/blind
 	icon_state = "blackimageoverlay"
 	layer = FULLSCREEN_BLIND_LAYER
@@ -126,6 +135,9 @@
 	icon = 'icons/mob/hud/screen1.dmi'
 	screen_loc = "WEST,SOUTH to EAST,NORTH"
 	icon_state = "noise"
+
+/atom/movable/screen/fullscreen/flash/dark
+	icon_state = "black"
 
 /atom/movable/screen/fullscreen/high
 	icon = 'icons/mob/hud/screen1.dmi'

@@ -73,20 +73,24 @@
 
 /obj/structure/machinery/prop/almayer/CICmap
 	name = "map table"
-	desc = "A table that displays a map of the current target location"
+	desc = "A table that displays a map of the current operation location."
 	icon = 'icons/obj/structures/machinery/computer.dmi'
 	icon_state = "maptable"
 	anchored = TRUE
 	use_power = USE_POWER_IDLE
 	density = TRUE
 	idle_power_usage = 2
-	///flags that we want to be shown when you interact with this table
 	var/datum/tacmap/map
+	///flags that we want to be shown when you interact with this table
 	var/minimap_type = MINIMAP_FLAG_USCM
+	///The faction that is intended to use this structure (determines type of tacmap used)
+	var/faction = FACTION_MARINE
 
 /obj/structure/machinery/prop/almayer/CICmap/Initialize()
 	. = ..()
-	map = new(src, minimap_type)
+
+	map = new /datum/tacmap/drawing(src, minimap_type)
+
 
 /obj/structure/machinery/prop/almayer/CICmap/Destroy()
 	QDEL_NULL(map)
@@ -97,14 +101,29 @@
 
 	map.tgui_interact(user)
 
+/obj/structure/machinery/prop/almayer/CICmap/computer
+	name = "map terminal"
+	desc = "A terminal that displays a map of the current operation location."
+	icon = 'icons/obj/vehicles/interiors/arc.dmi'
+	icon_state = "cicmap_computer"
+	density = FALSE
+
 /obj/structure/machinery/prop/almayer/CICmap/upp
 	minimap_type = MINIMAP_FLAG_UPP
+	faction = FACTION_UPP
 
 /obj/structure/machinery/prop/almayer/CICmap/clf
 	minimap_type = MINIMAP_FLAG_CLF
+	faction = FACTION_CLF
 
 /obj/structure/machinery/prop/almayer/CICmap/pmc
 	minimap_type = MINIMAP_FLAG_PMC
+	faction = FACTION_PMC
+
+/obj/structure/machinery/prop/almayer/CICmap/toc
+	name = "tactical map screen"
+	desc = "A screen on the TOC computer displaying the tactical map."
+	icon_state =  "toc_map"
 
 //Nonpower using props
 
@@ -183,10 +202,14 @@
 	unslashable = TRUE
 	unacidable = TRUE
 
+/obj/structure/prop/almayer/ship_memorial/golden_arrow
+	name = "memorial"
+	desc = "A memorial plaque dedicated to those of the Golden Arrow who have fallen in combat. It's an unfortunately long list of names."
+	icon_state = "garrow_memorial"
+
 /obj/structure/prop/almayer/ship_memorial/centcomm
 	name = "slab of remembrance"
 	desc = "A memorial to all Maintainer Team members that have retired from working on CM. No mentor names are present."
-
 
 /obj/structure/prop/almayer/ship_memorial/centcomm/admin
 	desc = "A memorial to all Admins and Moderators who have retired from CM. No mentor names are present."
@@ -197,7 +220,7 @@
 		var/obj/item/dogtag/D = I
 		if(D.fallen_names)
 			to_chat(user, SPAN_NOTICE("You add [D] to [src]."))
-			fallen_list += D.fallen_names
+			GLOB.fallen_list += D.fallen_names
 			qdel(D)
 		return TRUE
 	else
@@ -205,13 +228,13 @@
 
 /obj/structure/prop/almayer/ship_memorial/get_examine_text(mob/user)
 	. = ..()
-	if((isobserver(user) || ishuman(user)) && fallen_list)
+	if((isobserver(user) || ishuman(user)) && GLOB.fallen_list)
 		var/faltext = ""
-		for(var/i = 1 to fallen_list.len)
-			if(i != fallen_list.len)
-				faltext += "[fallen_list[i]], "
+		for(var/i = 1 to length(GLOB.fallen_list))
+			if(i != length(GLOB.fallen_list))
+				faltext += "[GLOB.fallen_list[i]], "
 			else
-				faltext += fallen_list[i]
+				faltext += GLOB.fallen_list[i]
 		. += SPAN_NOTICE("To our fallen soldiers: <b>[faltext]</b>.")
 
 /obj/structure/prop/almayer/particle_cannon
@@ -341,3 +364,14 @@
 	icon_state = "ob_console"
 	dir = WEST
 	flags_atom = ON_BORDER|CONDUCT|FPRINT
+
+/obj/structure/machinery/prop/almayer/CICmap/arc
+	name = "map terminal"
+	desc = "A terminal that displays a map of the current operation location."
+	icon = 'icons/obj/vehicles/interiors/arc.dmi'
+	icon_state = "arcmap"
+	density = FALSE
+
+/obj/structure/machinery/computer/overwatch/almayer/arc
+	icon = 'icons/obj/vehicles/interiors/arc.dmi'
+	icon_state = "arcconsole"

@@ -1,5 +1,5 @@
 #define BACKPACK_LIGHT_LEVEL 6
-#define PROTECTIVE_COST 50
+#define PROTECTIVE_COST 150
 #define REPAIR_COST 100
 #define IMMOBILE_COST 20
 
@@ -223,7 +223,7 @@
 	user.remove_filter("synth_protective_form")
 
 
-/obj/item/storage/backpack/marine/smartpack/proc/immobile_form(mob/user)
+/obj/item/storage/backpack/marine/smartpack/proc/immobile_form(mob/living/user)
 	if(activated_form)
 		return
 

@@ -101,12 +101,15 @@
 	if(!visible)
 		invisibility = 101
 
+GLOBAL_VAR_INIT(vehicle_blockers, TRUE)
 
 /obj/structure/blocker/forcefield/vehicles
 	types = list(/obj/vehicle/)
 
 
 /obj/structure/blocker/forcefield/vehicles/handle_vehicle_bump(obj/vehicle/multitile/multitile_vehicle)
+	if(!GLOB.vehicle_blockers)
+		return TRUE
 	if(multitile_vehicle.vehicle_flags & VEHICLE_BYPASS_BLOCKERS)
 		return TRUE
 	return FALSE
@@ -116,6 +119,8 @@
 
 
 /obj/structure/blocker/forcefield/multitile_vehicles/handle_vehicle_bump(obj/vehicle/multitile/multitile_vehicle)
+	if(!GLOB.vehicle_blockers)
+		return TRUE
 	if(multitile_vehicle.vehicle_flags & VEHICLE_BYPASS_BLOCKERS)
 		return TRUE
 	return FALSE
@@ -125,3 +130,13 @@
 	icon_state = "purple_line"
 
 	visible = TRUE
+
+/obj/structure/blocker/forcefield/human/bulletproof/get_projectile_hit_boolean()
+	return TRUE
+
+// for fuel pump since it's a large sprite.
+/obj/structure/blocker/fuelpump
+	name = "\improper Fuel Pump"
+	desc = "It is a machine that pumps fuel around the ship."
+	invisibility = 101
+	mouse_opacity = MOUSE_OPACITY_TRANSPARENT

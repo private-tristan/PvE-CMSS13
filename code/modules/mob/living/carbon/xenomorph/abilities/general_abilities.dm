@@ -235,7 +235,7 @@
 
 	pouncing_xeno.add_temp_pass_flags(PASS_OVER_THROW_MOB)
 
-	for(var/i in getline2(pouncing_xeno, pouncing_xeno.current_target, FALSE))
+	for(var/i in get_line(pouncing_xeno, pouncing_xeno.current_target, FALSE))
 		var/turf/new_turf = i
 		if(LinkBlocked(pouncing_xeno, last_turf, new_turf, list(pouncing_xeno.current_target, pouncing_xeno)))
 			clear = FALSE
@@ -282,10 +282,9 @@
 		return
 	var/mob/living/carbon/xenomorph/X = owner
 	REMOVE_TRAIT(X, TRAIT_IMMOBILIZED, TRAIT_SOURCE_ABILITY("Pounce"))
-	X.update_canmove()
 	deltimer(freeze_timer_id)
 	freeze_timer_id = TIMER_ID_NULL
-	to_chat(X, SPAN_XENONOTICE("Slashing frenzies you! You feel free to move immediately!"))
+	to_chat(X, SPAN_XENONOTICE("Slashing frenzies us! We feel free to move immediately!"))
 
 /// Any effects to apply to the xenomorph before the windup occurs
 /datum/action/xeno_action/activable/pounce/proc/pre_windup_effects()
@@ -315,7 +314,7 @@
 
 /datum/action/xeno_action/onclick/toggle_long_range/can_use_action()
 	var/mob/living/carbon/xenomorph/xeno = owner
-	if(xeno && !xeno.is_mob_incapacitated() && !xeno.lying && !xeno.buckled)
+	if(xeno && !xeno.is_mob_incapacitated() && !xeno.buckled)
 		return TRUE
 
 /datum/action/xeno_action/onclick/toggle_long_range/give_to(mob/living/living_mob)
@@ -326,7 +325,9 @@
 
 /datum/action/xeno_action/onclick/toggle_long_range/use_ability(atom/target)
 	var/mob/living/carbon/xenomorph/xeno = owner
-	xeno.speed_modifier = initial(xeno.speed_modifier)// Reset the speed modifier should you be disrupted while zooming or whatnot
+
+	if (!xeno.check_state())
+		return
 
 	if(xeno.observed_xeno)
 		return
@@ -335,7 +336,7 @@
 		xeno.zoom_out() // will call on_zoom_out()
 		return
 	xeno.visible_message(SPAN_NOTICE("[xeno] starts looking off into the distance."), \
-		SPAN_NOTICE("You start focusing your sight to look off into the distance."), null, 5)
+		SPAN_NOTICE("We start focusing our sight to look off into the distance."), null, 5)
 	if (should_delay)
 		if(!do_after(xeno, delay, INTERRUPT_NO_NEEDHAND, BUSY_ICON_GENERIC)) return
 	if(xeno.is_zoomed)
@@ -352,11 +353,14 @@
 /datum/action/xeno_action/onclick/toggle_long_range/proc/on_zoom_out()
 	var/mob/living/carbon/xenomorph/xeno = owner
 	xeno.visible_message(SPAN_NOTICE("[xeno] stops looking off into the distance."), \
-	SPAN_NOTICE("You stop looking off into the distance."), null, 5)
+	SPAN_NOTICE("We stop looking off into the distance."), null, 5)
 	if(movement_slowdown)
 		xeno.speed_modifier -= movement_slowdown
 		xeno.recalculate_speed()
 	button.icon_state = "template"
+
+/datum/action/xeno_action/onclick/toggle_long_range/proc/on_zoom_in()
+	return
 
 /datum/action/xeno_action/onclick/toggle_long_range/proc/handle_mob_move_or_look(mob/living/carbon/xenomorph/xeno, actually_moving, direction, specific_direction)
 	SIGNAL_HANDLER
@@ -425,10 +429,12 @@
 /// remove hide and apply modified attack cooldown
 /datum/action/xeno_action/onclick/xenohide/proc/post_attack()
 	var/mob/living/carbon/xenomorph/xeno = owner
+	UnregisterSignal(xeno, COMSIG_MOB_STATCHANGE)
 	if(xeno.layer == XENO_HIDING_LAYER)
 		xeno.layer = initial(xeno.layer)
 		button.icon_state = "template"
 		xeno.update_wounds()
+		xeno.update_layer()
 	apply_cooldown(4) //2 second cooldown after attacking
 
 /datum/action/xeno_action/onclick/xenohide/give_to(mob/living/living_mob)
@@ -453,7 +459,7 @@
 	action_type = XENO_ACTION_CLICK
 	ability_primacy = XENO_PRIMARY_ACTION_5
 
-/datum/action/xeno_action/activable/place_construction/queen_macro //so it doesn't screw other macros up
+/datum/action/xeno_action/activable/place_construction/not_primary //so it doesn't screw other macros up
 	ability_primacy = XENO_NOT_PRIMARY_ACTION
 
 /datum/action/xeno_action/activable/xeno_spit
@@ -463,7 +469,7 @@
 	macro_path = /datum/action/xeno_action/verb/verb_xeno_spit
 	action_type = XENO_ACTION_CLICK
 	ability_primacy = XENO_PRIMARY_ACTION_1
-	cooldown_message = "You feel your neurotoxin glands swell with ichor. You can spit again."
+	cooldown_message = "We feel our neurotoxin glands swell with ichor. We can spit again."
 	xeno_cooldown = 60 SECONDS
 
 	/// Var that keeps track of in-progress wind-up spits like Bombard to prevent spitting multiple spits at the same time
@@ -509,6 +515,7 @@
 	listen_signal = COMSIG_KB_XENO_EVOLVE
 
 /datum/action/xeno_action/onclick/evolve/action_activate()
+	. = ..()
 	var/mob/living/carbon/xenomorph/xeno = owner
 	xeno.do_evolve()
 
@@ -526,6 +533,7 @@
 	ability_name = "view tacmap"
 
 	var/mob/living/carbon/xenomorph/queen/tracked_queen
+	var/hivenumber
 
 /datum/action/xeno_action/onclick/tacmap/Destroy()
 	tracked_queen = null
@@ -534,6 +542,7 @@
 /datum/action/xeno_action/onclick/tacmap/give_to(mob/living/carbon/xenomorph/xeno)
 	. = ..()
 
+	hivenumber = xeno.hive.hivenumber
 	RegisterSignal(xeno.hive, COMSIG_HIVE_NEW_QUEEN, PROC_REF(handle_new_queen))
 
 	if(!xeno.hive.living_xeno_queen)
@@ -544,6 +553,10 @@
 		hide_from(xeno)
 
 	handle_new_queen(new_queen = xeno.hive.living_xeno_queen)
+
+/datum/action/xeno_action/onclick/tacmap/remove_from(mob/living/carbon/xenomorph/xeno)
+	. = ..()
+	UnregisterSignal(GLOB.hive_datum[hivenumber], COMSIG_HIVE_NEW_QUEEN)
 
 /// handles the addition of a new queen, hiding if appropriate
 /datum/action/xeno_action/onclick/tacmap/proc/handle_new_queen(datum/hive_status/hive, mob/living/carbon/xenomorph/queen/new_queen)
@@ -572,7 +585,30 @@
 
 	hide_from(owner)
 
+/datum/action/xeno_action/onclick/tacmap/can_use_action()
+	if(!owner)
+		return FALSE
+	var/mob/living/carbon/xenomorph/xeno = owner
+	if(xeno.is_mob_incapacitated() || xeno.dazed)
+		return FALSE
+	return TRUE
+
 /datum/action/xeno_action/onclick/tacmap/use_ability(atom/target)
 	var/mob/living/carbon/xenomorph/xeno = owner
 	xeno.xeno_tacmap()
 	return ..()
+
+/datum/action/xeno_action/active_toggle/toggle_meson_vision
+	name = "Toggle Meson Vision"
+	action_icon_state = "project_xeno"
+	plasma_cost = 0
+	action_type = XENO_ACTION_CLICK
+	ability_primacy = XENO_PRIMARY_ACTION_5
+
+/datum/action/xeno_action/active_toggle/toggle_meson_vision/enable_toggle()
+	. = ..()
+	owner.sight |= SEE_TURFS
+
+/datum/action/xeno_action/active_toggle/toggle_meson_vision/disable_toggle()
+	. = ..()
+	owner.sight &= ~SEE_TURFS

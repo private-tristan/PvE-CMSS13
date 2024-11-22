@@ -21,7 +21,7 @@
 			hud_icon_state = "sl"
 		if(JOB_UPP_POLICE)
 			hud_icon_state = "mp"
-		if(JOB_UPP_LT_OFFICER)
+		if(JOB_UPP_LT_OFFICER, JOB_SO)
 			hud_icon_state = "lt"
 		if(JOB_UPP_SRLT_OFFICER)
 			hud_icon_state = "slt"
@@ -53,8 +53,45 @@
 			hud_icon_state = "vc"
 		if(JOB_UPP_LT_DOKTOR)
 			hud_icon_state = "doc"
+		if(JOB_UPP_SUPPLY)
+			hud_icon_state = "log"
+		if(JOB_UPP_COMMISSAR)
+			hud_icon_state = "commi"
 	if(hud_icon_state)
 		holder.overlays += image('icons/mob/hud/marine_hud.dmi', H, "upp_[hud_icon_state]")
+
+//UPP PVE PLATOON
+	var/datum/squad/squad = H.assigned_squad
+	if(istype(squad, /datum/squad/marine/upp))
+		var/squad_clr = H.assigned_squad.equipment_color
+		switch(GET_DEFAULT_ROLE(_role))
+			if(JOB_SQUAD_MEDIC) hud_icon_state = "med"
+			if(JOB_SQUAD_SMARTGUN) hud_icon_state = "gun"
+			if(JOB_SQUAD_TEAM_LEADER) hud_icon_state = "tl"
+			if(JOB_SQUAD_LEADER) hud_icon_state = "leader_a"
+		if(squad.fireteam_leaders["SQ1"] == H || squad.fireteam_leaders["SQ2"] == H)
+			H.langchat_styles = "langchat_smaller_bolded"
+		else
+			H.langchat_styles = initial(H.langchat_styles)
+		H.langchat_color = H.assigned_squad.chat_color
+
+		if(!hud_icon_state) hud_icon_state = H.rank_fallback
+		if(hud_icon_state)
+			var/image/IMG = image('icons/mob/hud/marine_hud.dmi', H, "hudsquad")
+			if(squad_clr)
+				IMG.color = squad_clr
+			else
+				IMG.color = "#5A934A"
+			holder.overlays += IMG
+			holder.overlays += image('icons/mob/hud/marine_hud.dmi', H, "hudsquad_[hud_icon_state]")
+		if(H.assigned_squad && H.assigned_fireteam)
+			var/image/IMG2 = image('icons/mob/hud/marine_hud.dmi', H, "hudsquad_[H.assigned_fireteam]")
+			IMG2.color = squad_clr
+			holder.overlays += IMG2
+			if(H.assigned_squad.fireteam_leaders[H.assigned_fireteam] == H)
+				var/image/IMG3 = image('icons/mob/hud/marine_hud.dmi', H, "hudsquad_ftl")
+				IMG3.color = squad_clr
+				holder.overlays += IMG3
 
 /datum/faction/upp/get_antag_guns_snowflake_equipment()
 	return list(
@@ -65,8 +102,8 @@
 
 		list("PRIMARY AMMUNITION", 0, null, null, null),
 		list("Type 64 Helical Magazine (7.62x19mm)", 5, /obj/item/ammo_magazine/smg/bizon, null, VENDOR_ITEM_REGULAR),
-		list("Type 71 AP Magazine (5.45x39mm)", 15, /obj/item/ammo_magazine/rifle/type71/ap, null, VENDOR_ITEM_REGULAR),
-		list("Type 71 Magazine (5.45x39mm)", 5, /obj/item/ammo_magazine/rifle/type71, null, VENDOR_ITEM_REGULAR),
+		list("Type 71 AP Magazine (10x31mm)", 15, /obj/item/ammo_magazine/rifle/type71/ap, null, VENDOR_ITEM_REGULAR),
+		list("Type 71 Magazine (10x31mm)", 5, /obj/item/ammo_magazine/rifle/type71, null, VENDOR_ITEM_REGULAR),
 
 		list("SIDEARMS", 0, null, null, null),
 		list("Type 73 Pistol", 25, /obj/item/weapon/gun/pistol/t73, null, VENDOR_ITEM_REGULAR),
@@ -104,8 +141,8 @@
 
 		list("PRIMARY AMMUNITION", -1, null, null),
 		list("Type 64 Helical Magazine (7.62x19mm)", 60, /obj/item/ammo_magazine/smg/bizon, VENDOR_ITEM_REGULAR),
-		list("Type 71 AP Magazine (5.45x39mm)", 60, /obj/item/ammo_magazine/rifle/type71/ap, VENDOR_ITEM_REGULAR),
-		list("Type 71 Magazine (5.45x39mm)", 60, /obj/item/ammo_magazine/rifle/type71, VENDOR_ITEM_REGULAR),
+		list("Type 71 AP Magazine (10x31mm)", 60, /obj/item/ammo_magazine/rifle/type71/ap, VENDOR_ITEM_REGULAR),
+		list("Type 71 Magazine (10x31mm)", 60, /obj/item/ammo_magazine/rifle/type71, VENDOR_ITEM_REGULAR),
 
 		list("SIDEARMS", -1, null, null),
 		list("Type 73 Pistol", 20, /obj/item/weapon/gun/pistol/t73, VENDOR_ITEM_REGULAR),

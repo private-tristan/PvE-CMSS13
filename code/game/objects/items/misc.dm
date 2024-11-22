@@ -56,13 +56,13 @@
 	..()
 	if(!gripped)
 		user.visible_message(SPAN_NOTICE("[user] grips [src] tightly."), SPAN_NOTICE("You grip [src] tightly."))
-		flags_item |= NODROP
+		flags_item |= NODROP|FORCEDROP_CONDITIONAL
 		ADD_TRAIT(user, TRAIT_HOLDS_CANE, TRAIT_SOURCE_ITEM)
 		user.AddComponent(/datum/component/footstep, 6, 35, 4, 1, "cane_step")
 		gripped = TRUE
 	else
 		user.visible_message(SPAN_NOTICE("[user] loosens \his grip on [src]."), SPAN_NOTICE("You loosen your grip on [src]."))
-		flags_item &= ~NODROP
+		flags_item &= ~(NODROP|FORCEDROP_CONDITIONAL)
 		REMOVE_TRAIT(user, TRAIT_HOLDS_CANE, TRAIT_SOURCE_ITEM)
 		// Ideally, this would be something like a component added onto every mob that prioritizes certain sounds, such as stomping over canes.
 		var/component = user.GetComponent(/datum/component/footstep)
@@ -134,7 +134,7 @@
 					return
 				stored_item = object
 				mobber.drop_inv_item_to_loc(object, src)
-				to_chat(mobber, SPAN_NOTICE("You slide the [object] into [src]."))
+				to_chat(mobber, SPAN_NOTICE("You slide [object] into [src]."))
 				playsound(mobber, 'sound/weapons/gun_shotgun_shell_insert.ogg', 15, TRUE)
 				update_icon()
 				break
@@ -164,7 +164,7 @@
 	desc = "A debug item for research."
 
 /obj/item/moneybag
-	icon = 'icons/obj/items/storage.dmi'
+	icon = 'icons/obj/items/storage/bags.dmi'
 	name = "Money bag"
 	icon_state = "moneybag"
 	force = 10
@@ -178,7 +178,7 @@
 /obj/item/evidencebag
 	name = "evidence bag"
 	desc = "An empty evidence bag."
-	icon = 'icons/obj/items/storage.dmi'
+	icon = 'icons/obj/items/storage/bags.dmi'
 	icon_state = "evidenceobj"
 	item_state = ""
 	w_class = SIZE_SMALL
@@ -224,7 +224,7 @@
 		to_chat(user, SPAN_NOTICE("[I] won't fit in [src]."))
 		return
 
-	if(contents.len)
+	if(length(contents))
 		to_chat(user, SPAN_NOTICE("[src] already has something inside it."))
 		return
 
@@ -257,7 +257,7 @@
 /obj/item/evidencebag/attack_self(mob/user)
 	..()
 
-	if(contents.len)
+	if(length(contents))
 		var/obj/item/I = contents[1]
 		user.visible_message("[user] takes [I] out of [src]", "You take [I] out of [src].",\
 		"You hear someone rustle around in a plastic bag, and remove something.")
@@ -292,6 +292,16 @@
 	new /obj/item/evidencebag(src)
 	new /obj/item/evidencebag(src)
 
+/obj/item/parachute
+	name = "parachute"
+	desc = "A surprisingly small yet bulky pack with just enough safety straps to make RnD pass health and safety. The label says the pack comes with two parachutes - main and reserve, but you doubt the pack can fit even one."
+	icon = 'icons/obj/items/clothing/backpacks.dmi'
+	icon_state = "parachute_pack"
+	item_state = "parachute_pack"
+	w_class = SIZE_MASSIVE
+	flags_equip_slot = SLOT_BACK
+	flags_item = SMARTGUNNER_BACKPACK_OVERRIDE
+
 /obj/item/rappel_harness
 	name = "rappel harness"
 	desc = "A simple, uncomfortable rappel harness with just enough safety straps to make RnD pass health and safety. It comes with an in-built descender, but has no pouches for ammunition."
@@ -300,3 +310,117 @@
 	item_state = "rappel_harness"
 	w_class = SIZE_MASSIVE
 	flags_equip_slot = SLOT_WAIST
+
+/obj/item/rappel_harness/extract
+	name = "dual purpose rappel-fulton harness"
+	desc = "A fulton Surface To Air Recovery System (STARS). Special latch/hook assembly allows for aircraft on flyby equipped with a rappel system to pick up the attached item or person. The complex assembly of venlar rigging and secured buckles takes some time to set up though."
+	icon_state = "rappel_harness_adv"
+	var/shuttle_id
+	actions_types = list(/datum/action/item_action/STARS)
+
+/obj/item/rappel_harness/extract/proc/try_extract(mob/living/carbon/human/user)
+	var/obj/docking_port/mobile/marine_dropship/shuttle = SSshuttle.getShuttle(shuttle_id)
+
+	if(!shuttle)
+		return
+
+	if(!shuttle.in_flyby)
+		to_chat(user, SPAN_WARNING("No shuttle detected in lower orbit, aborting extraction."))
+		return
+
+	var/obj/structure/dropship_equipment/paradrop_system/rapsys = locate() in shuttle.equipments
+	if(!rapsys)
+		to_chat(user, SPAN_WARNING("No rappel system detected in shuttle, aborting extraction."))
+		return
+
+	user.visible_message(SPAN_DANGER("[user] gets snatched off the ground with a tremendous force!"))
+	if(prob(50))
+		user.emote("scream")
+	user.apply_effect(10, STUN)
+	animate(user, time = 2, pixel_x = 360, pixel_y = 360, flags = ANIMATION_PARALLEL)
+	playsound(user,'sound/effects/bamf.ogg', 50, 1)
+	addtimer(CALLBACK(src, PROC_REF(on_extract), user, rapsys), 1.5 SECONDS)
+
+/obj/item/rappel_harness/extract/attack(mob/living/carbon/human/H, mob/living/carbon/human/user)
+	if(H.belt)
+		to_chat(user, SPAN_WARNING("Remove their belt first!"))
+		return
+
+	if(!is_ground_level(H.z))
+		return
+
+	var/area/location_area = get_area(H)
+	if(CEILING_IS_PROTECTED(location_area.ceiling, CEILING_PROTECTION_TIER_1))
+		to_chat(H, SPAN_WARNING("There's no space for fulton balloon to fly in this area."))
+		return
+
+	user.visible_message(SPAN_DANGER("[user] begins to adjust the fulton device on [H] for extraction!"))
+	playsound(H, 'sound/items/fulton.ogg', 50, 1)
+	if(!do_after(user, (10 SECONDS), INTERRUPT_ALL, BUSY_ICON_HOSTILE, H))
+		return
+
+	if(H.belt)
+		to_chat(user, SPAN_WARNING("Remove their belt!"))
+		return
+	user.drop_inv_item_to_loc(src, H)
+	H.equip_to_slot_if_possible(src, WEAR_WAIST)
+	try_extract(H)
+
+/obj/item/rappel_harness/extract/proc/on_extract(mob/living/carbon/human/user, obj/structure/dropship_equipment/paradrop_system/system)
+	flick("rappel_hatch_opening", system)
+	user.pixel_x = 0
+	user.pixel_y = 0
+	user.forceMove(get_turf(system))
+	user.apply_effect(5, WEAKEN)
+	if(prob(25))
+		user.do_vomit()
+
+/datum/action/item_action/STARS/New(Target, obj/item/holder)
+	. = ..()
+	name = "Attempt Extraction"
+	action_icon_state = "extract"
+	button.name = name
+	button.overlays.Cut()
+	button.overlays += image('icons/mob/hud/actions.dmi', button, action_icon_state)
+
+/datum/action/item_action/STARS/action_activate()
+	. = ..()
+	var/obj/item/rappel_harness/extract/harness = holder_item
+	var/mob/living/carbon/human/H = usr
+	if(H.belt != harness)
+		to_chat(H, SPAN_WARNING("You have to equip the harness on your belt!"))
+		return
+	if(!is_ground_level(H.z))
+		return
+
+	var/area/location_area = get_area(H)
+	if(CEILING_IS_PROTECTED(location_area.ceiling, CEILING_PROTECTION_TIER_1))
+		to_chat(H, SPAN_WARNING("There's no space for fulton balloon to fly in this area."))
+		return
+	H.visible_message(SPAN_DANGER("[H] begins to adjust the fulton device for self-extraction!"))
+	playsound(H, 'sound/items/fulton.ogg', 50, 1)
+	if(!do_after(H, (10 SECONDS), INTERRUPT_ALL, BUSY_ICON_HOSTILE, harness))
+		return
+
+	harness.try_extract(H)
+
+/obj/item/rappel_harness/extract/midway
+	shuttle_id = DROPSHIP_MIDWAY
+
+/obj/item/rappel_harness/extract/cyclone
+	shuttle_id = DROPSHIP_CYCLONE
+
+/obj/item/rappel_harness/extract/typhoon
+	shuttle_id = DROPSHIP_TYPHOON
+
+/obj/item/rappel_harness/extract/tornado
+	shuttle_id = DROPSHIP_TORNADO
+
+/obj/item/rappel_harness/extract/tripoli
+	shuttle_id = DROPSHIP_TRIPOLI
+
+/obj/item/rappel_harness/extract/alamo
+	shuttle_id = DROPSHIP_ALAMO
+
+/obj/item/rappel_harness/extract/normandy
+	shuttle_id = DROPSHIP_NORMANDY

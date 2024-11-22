@@ -5,11 +5,13 @@
 	icon_state = "closed"
 	density = TRUE
 	layer = BELOW_OBJ_LAYER
+	blocks_emissive = EMISSIVE_BLOCK_GENERIC
 	var/icon_closed = "closed"
 	var/icon_opened = "open"
-	var/opened = 0
-	var/welded = 0
-	var/wall_mounted = 0 //never solid (You can always pass over it)
+	var/opened = FALSE
+	var/welded = FALSE
+	var/wall_mounted = FALSE //never solid (You can always pass over it)
+	var/can_be_stacked = FALSE
 	health = 100
 	var/lastbang
 	var/storage_capacity = 30 //This is so that someone can't pack hundreds of items in a locker/crate
@@ -59,52 +61,57 @@
 
 /obj/structure/closet/proc/can_open()
 	if(src.welded)
-		return 0
-	return 1
+		return FALSE
+	return TRUE
 
 /obj/structure/closet/proc/can_close()
+	for(var/mob/living/carbon/xenomorph/xeno in get_turf(src))
+		return FALSE
+	if(can_be_stacked)
+		return TRUE
 	for(var/obj/structure/closet/closet in get_turf(src))
 		if(closet != src && !closet.wall_mounted)
-			return 0
-	for(var/mob/living/carbon/xenomorph/xeno in get_turf(src))
-		return 0
-	return 1
+			return FALSE
+	return TRUE
 
 /obj/structure/closet/proc/dump_contents()
 
 	for(var/obj/I in src)
 		I.forceMove(loc)
+		I.pixel_x = pixel_x
+		I.pixel_y = pixel_y
 
 	for(var/mob/M in src)
 		M.forceMove(loc)
 		if(exit_stun)
 			M.apply_effect(exit_stun, STUN) //Action delay when going out of a closet
-		M.update_canmove() //Force the delay to go in action immediately
-		if(!M.lying)
-			M.visible_message(SPAN_WARNING("[M] suddenly gets out of [src]!"),
-			SPAN_WARNING("You get out of [src] and get your bearings!"))
+		if(isliving(M))
+			var/mob/living/living_M = M
+			if(living_M.mobility_flags & MOBILITY_MOVE)
+				M.visible_message(SPAN_WARNING("[M] suddenly gets out of [src]!"),
+				SPAN_WARNING("You get out of [src] and get your bearings!"))
 
 /obj/structure/closet/proc/open()
 	if(opened)
-		return 0
+		return FALSE
 
 	if(!can_open())
-		return 0
+		return FALSE
 
 	dump_contents()
 
 	UnregisterSignal(src, COMSIG_CLOSET_FLASHBANGED)
-	opened = 1
+	opened = TRUE
 	update_icon()
 	playsound(src.loc, open_sound, 15, 1)
 	density = FALSE
-	return 1
+	return TRUE
 
 /obj/structure/closet/proc/close()
 	if(!src.opened)
-		return 0
+		return FALSE
 	if(!src.can_close())
-		return 0
+		return FALSE
 
 	var/stored_units = 0
 	if(store_items)
@@ -113,12 +120,12 @@
 		stored_units = store_mobs(stored_units)
 		RegisterSignal(src, COMSIG_CLOSET_FLASHBANGED, PROC_REF(flashbang))
 
-	opened = 0
+	opened = FALSE
 	update_icon()
 
 	playsound(src.loc, close_sound, 15, 1)
 	density = TRUE
-	return 1
+	return TRUE
 
 /obj/structure/closet/proc/store_items(stored_units)
 	for(var/obj/item/I in src.loc)
@@ -126,7 +133,9 @@
 			var/obj/item/explosive/plastic/P = I
 			if(P.active)
 				continue
-		var/item_size = Ceiling(I.w_class / 2)
+		if(istype(I, /obj/item/handset))
+			continue
+		var/item_size = ceil(I.w_class / 2)
 		if(stored_units + item_size > storage_capacity)
 			continue
 		if(!I.anchored)
@@ -157,10 +166,15 @@
 
 
 /obj/structure/closet/proc/take_damage(damage)
+	if(health <= 0)
+		return
+
 	health = max(health - damage, 0)
 	if(health <= 0)
-		for(var/atom/movable/A as anything in src)
-			A.forceMove(src.loc)
+		for(var/atom/movable/movable as anything in src)
+			if(!loc)
+				break
+			movable.forceMove(loc)
 		playsound(loc, 'sound/effects/meteorimpact.ogg', 25, 1)
 		qdel(src)
 
@@ -194,7 +208,7 @@
 
 /obj/structure/closet/attack_animal(mob/living/user)
 	if(user.wall_smash)
-		visible_message(SPAN_DANGER("[user] destroys the [src]. "))
+		visible_message(SPAN_DANGER("[user] destroys [src]."))
 		for(var/atom/movable/A as mob|obj in src)
 			A.forceMove(src.loc)
 		qdel(src)
@@ -208,7 +222,7 @@
 				src.MouseDrop_T(G.grabbed_thing, user)   //act like they were dragged onto the closet
 			return
 		if(W.flags_item & ITEM_ABSTRACT)
-			return 0
+			return FALSE
 		if(material == MATERIAL_METAL)
 			if(iswelder(W))
 				if(!HAS_TRAIT(W, TRAIT_TOOL_BLOWTORCH))
@@ -238,8 +252,6 @@
 				user.visible_message(SPAN_NOTICE("[user] has pried apart [src] with [W]."), "You pry apart [src].")
 				qdel(src)
 				return
-		if(isrobot(user))
-			return
 		user.drop_inv_item_to_loc(W,loc)
 
 	else if(istype(W, /obj/item/packageWrap) || istype(W, /obj/item/explosive/plastic))
@@ -333,7 +345,7 @@
 	set category = "Object"
 	set name = "Toggle Open"
 
-	if(!usr.canmove || usr.stat || usr.is_mob_restrained())
+	if(usr.is_mob_incapacitated())
 		return
 
 	if(usr.loc == src)
@@ -368,5 +380,5 @@
 
 /obj/structure/closet/proc/break_open()
 	if(!opened)
-		welded = 0
+		welded = FALSE
 		open()

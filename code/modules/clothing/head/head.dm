@@ -53,8 +53,8 @@
 	icon_state = "beanietan"
 
 /obj/item/clothing/head/beret/cm
-	name = "\improper USCM beret"
-	desc = "A hat typically worn by the field-officers of the USCM. Occasionally they find their way down the ranks into the hands of squad-leaders and decorated grunts."
+	name = "\improper Beret"
+	desc = "A hat typically worn by the French. Occasionally they find their way into the hands of people with nothing better to spend their money on."
 	icon = 'icons/obj/items/clothing/cm_hats.dmi'
 	icon_state = "beret"
 	item_icons = list(
@@ -81,50 +81,37 @@
 /obj/item/clothing/head/beret/cm/black
 	icon_state = "beret_black"
 
-/obj/item/clothing/head/beret/cm/squadberet
-	name = "USCM Squad Beret"
-	desc = "For those who want to show pride and have nothing to lose (in their head, at least)."
+/obj/item/clothing/head/beret/cm/green
+	icon_state = "beret_green"
 
-/obj/item/clothing/head/beret/cm/squadberet/equipped(mob/user, slot)
-	. = ..()
-	self_set()
-	RegisterSignal(user, COMSIG_SET_SQUAD, PROC_REF(self_set), TRUE)
+/obj/item/clothing/head/beret/cm/alpha
+	icon_state = "beret_alpha"
 
-/obj/item/clothing/head/beret/cm/squadberet/dropped(mob/user)
-	. = ..()
-	UnregisterSignal(user, COMSIG_SET_SQUAD)
+/obj/item/clothing/head/beret/cm/bravo
+	icon_state = "beret_bravo"
 
-/obj/item/clothing/head/beret/cm/squadberet/proc/self_set()
-	var/mob/living/carbon/human/H = loc
-	if(istype(H))
-		if(H.assigned_squad)
-			switch(H.assigned_squad.name)
-				if(SQUAD_MARINE_2)
-					icon_state = "beret_bravo"
-					desc = "It has quite a lot of debris on it, the person wearing this probably moves less than a wall."
-				if(SQUAD_MARINE_3)
-					icon_state = "beret_charlie"
-					desc = "Still has some morning toast crumbs on it."
-				if(SQUAD_MARINE_4)
-					icon_state = "beret_delta"
-					desc = "Hard to consider protection, but these types of people don't seek protection."
-				if(SQUAD_MARINE_5)
-					icon_state = "beret_echo"
-					desc = "Tightly Woven, as it should be."
-				if(SQUAD_MARINE_CRYO)
-					icon_state = "beret_foxtrot"
-					desc = "Looks and feels starched, cold to the touch."
-				if(SQUAD_MARINE_INTEL)
-					icon_state = "beret_intel"
-					desc = "Looks more intellegent than the person wearing it."
+/obj/item/clothing/head/beret/cm/charlie
+	icon_state = "beret_charlie"
 
-			if(H.assigned_squad.name == GLOB.main_platoon_name)
-				icon_state = "beret_alpha"
-				desc = "Often found atop heads, slightly less found on those still attached."
-		else
-			icon_state = "beret"
-			desc = initial(desc)
-		H.update_inv_head()
+/obj/item/clothing/head/beret/cm/delta
+	icon_state = "beret_delta"
+
+/obj/item/clothing/head/beret/cm/echo
+	icon_state = "beret_echo"
+
+/obj/item/clothing/head/beret/cm/foxtrot
+	icon_state = "beret_foxtrot"
+
+/obj/item/clothing/head/beret/cm/intel
+	icon_state = "beret_intel"
+
+/obj/item/clothing/head/beret/cm/white/civilian
+	name = "White Beret"
+	icon_state = "s_beret"
+
+/obj/item/clothing/head/beret/cm/black/civilian
+	name = "Black Beret"
+	icon_state = "beret_black"
 
 
 /obj/item/clothing/head/headband
@@ -157,50 +144,33 @@
 	desc = "A headband made from a simple strip of cloth. The words \"DOWN WITH TYRANTS\" are emblazoned on the front."
 	icon_state = "rebelband"
 
-/obj/item/clothing/head/headband/squad
-	var/dummy_icon_state = "headband%SQUAD%"
+/obj/item/clothing/head/headband/alpha
+	desc = "A bright red headband made out of durable cloth. it seems brand new, yet to see any wear"
+	icon_state = "headbandalpha"
 
-	var/static/list/valid_icon_states
+/obj/item/clothing/head/headband/bravo
+	desc = "An orangish yellow headband made out of durable cloth. this one stained with sweat and dust from manual labor"
+	icon_state = "headbandbravo"
 
-/obj/item/clothing/head/headband/squad/Initialize(mapload, ...)
-	. = ..()
-	if(!valid_icon_states)
-		valid_icon_states = icon_states(icon)
-	adapt_to_squad()
+/obj/item/clothing/head/headband/charlie
+	desc = "A purple headband made out of durable cloth. this one smells of jealousy and breakfast"
+	icon_state = "headbandcharlie"
 
-/obj/item/clothing/head/headband/squad/proc/update_clothing_wrapper(mob/living/carbon/human/wearer)
-	SIGNAL_HANDLER
+/obj/item/clothing/head/headband/delta
+	desc = "A blue headband made out of durable cloth. just wearing it makes you want to recklessly charge the enemy"
+	icon_state = "headbanddelta"
 
-	var/is_worn_by_wearer = recursive_holder_check(src) == wearer
-	if(is_worn_by_wearer)
-		update_clothing_icon()
-	else
-		UnregisterSignal(wearer, COMSIG_SET_SQUAD) // we can't set this in dropped, because dropping into a helmet unsets it and then it never updates
+/obj/item/clothing/head/headband/echo
+	desc = "A sea green headband made out of durable cloth. its color has been washed out from many long sneaking missions and raids behind enemy lines"
+	icon_state = "headbandecho"
 
-/obj/item/clothing/head/headband/squad/update_clothing_icon()
-	adapt_to_squad()
-	if(istype(loc, /obj/item/storage/internal) && istype(loc.loc, /obj/item/clothing/head/helmet))
-		var/obj/item/clothing/head/helmet/headwear = loc.loc
-		headwear.update_icon()
-	return ..()
+/obj/item/clothing/head/headband/foxtrot
+	desc = "A brown headband made out of durable cloth. it is still cold to the touch from years of cryosleep"
+	icon_state = "headbandfoxtrot"
 
-/obj/item/clothing/head/headband/squad/pickup(mob/user, silent)
-	. = ..()
-	adapt_to_squad()
-
-/obj/item/clothing/head/headband/squad/equipped(mob/user, slot, silent)
-	RegisterSignal(user, COMSIG_SET_SQUAD, PROC_REF(update_clothing_wrapper), TRUE)
-	adapt_to_squad()
-	return ..()
-
-/obj/item/clothing/head/headband/squad/proc/adapt_to_squad()
-	var/squad_color = "Delta"
-	var/mob/living/carbon/human/wearer = recursive_holder_check(src)
-	if(istype(wearer) && wearer.assigned_squad)
-		var/squad_name = lowertext(wearer.assigned_squad.name)
-		if("headband[squad_name]" in valid_icon_states)
-			squad_color = squad_name
-	icon_state = replacetext(initial(dummy_icon_state), "%SQUAD%", squad_color)
+/obj/item/clothing/head/headband/intel
+	desc = "A black headband made out of durable cloth. wearing this makes you feel like a secret agent."
+	icon_state = "headbandintel"
 
 /obj/item/clothing/head/headband/rambo
 	desc = "It flutters in the face of the wind, defiant and unrestrained, like the man who wears it."
@@ -215,6 +185,23 @@
 	desc = "A headset typically found in use by radio-operators and officers. This one appears to be malfunctioning."
 	icon_state = "headset"
 	icon = 'icons/obj/items/clothing/cm_hats.dmi'
+	item_icons = list(
+		WEAR_HEAD = 'icons/mob/humans/onmob/head_1.dmi'
+	)
+
+/obj/item/clothing/head/sulacocap
+	name = "\improper USS Golden Arrow Cap"
+	desc = "A casual cap able to be purchased and worn by Marines stationed on the USS Golden Arrow. While it only protects from the sun, it's much more comfortable than a helmet."
+	icon_state = "sulacocap"
+	icon = 'icons/obj/items/clothing/cm_hats.dmi'
+	var/helmet_overlays[]
+	var/flipped_cap = FALSE
+	var/list/flipping_message = list(
+		"flipped" = "You spin the hat backwards! You look like a tool.",
+		"unflipped" = "You spin the hat back forwards. That's better."
+		)
+	var/base_cap_icon
+	var/flags_marine_hat = HAT_GARB_OVERLAY|HAT_CAN_FLIP
 	item_icons = list(
 		WEAR_HEAD = 'icons/mob/humans/onmob/head_1.dmi'
 	)
@@ -248,8 +235,11 @@
 						/obj/item/clothing/glasses/mgoggles = HAT_GARB_RELAY_ICON_STATE,
 						/obj/item/clothing/glasses/mgoggles/prescription = HAT_GARB_RELAY_ICON_STATE,
 						/obj/item/clothing/glasses/mgoggles/black = HAT_GARB_RELAY_ICON_STATE,
+						/obj/item/clothing/glasses/mgoggles/black/prescription = HAT_GARB_RELAY_ICON_STATE,
 						/obj/item/clothing/glasses/mgoggles/orange = HAT_GARB_RELAY_ICON_STATE,
+						/obj/item/clothing/glasses/mgoggles/orange/prescription = HAT_GARB_RELAY_ICON_STATE,
 						/obj/item/clothing/glasses/mgoggles/v2 = HAT_GARB_RELAY_ICON_STATE,
+						/obj/item/clothing/glasses/mgoggles/v2/prescription = HAT_GARB_RELAY_ICON_STATE,
 						/obj/item/prop/helmetgarb/helmet_nvg = HAT_GARB_RELAY_ICON_STATE,
 						/obj/item/prop/helmetgarb/helmet_nvg/cosmetic = HAT_GARB_RELAY_ICON_STATE,
 						/obj/item/prop/helmetgarb/helmet_nvg/marsoc = HAT_GARB_RELAY_ICON_STATE,
@@ -258,7 +248,13 @@
 						/obj/item/clothing/head/headband/red = "hat_headbandred",
 						/obj/item/clothing/head/headband/brown = "hat_headbandbrown",
 						/obj/item/clothing/head/headband/gray = "hat_headbandgray",
-						/obj/item/clothing/head/headband/squad = HAT_GARB_RELAY_ICON_STATE,
+						/obj/item/clothing/head/headband/alpha = "hat_headbandalpha",
+						/obj/item/clothing/head/headband/bravo = "hat_headbandbravo",
+						/obj/item/clothing/head/headband/charlie = "hat_headbandcharlie",
+						/obj/item/clothing/head/headband/delta = "hat_headbanddelta",
+						/obj/item/clothing/head/headband/echo = "hat_headbandecho",
+						/obj/item/clothing/head/headband/foxtrot = "hat_headbandfoxtrot",
+						/obj/item/clothing/head/headband/foxtrot = "hat_headbandintel",
 						/obj/item/prop/helmetgarb/lucky_feather = "lucky_feather",
 						/obj/item/prop/helmetgarb/lucky_feather/blue = "lucky_feather_blue",
 						/obj/item/prop/helmetgarb/lucky_feather/purple = "lucky_feather_purple",
@@ -397,13 +393,14 @@
 	flags_atom = FPRINT|NO_SNOW_TYPE
 
 /obj/item/clothing/head/cmcap/bridge
-	name = "\improper USCM officer cap"
+	name = "\improper USCM operations cap"
 	desc = "A hat usually worn by officers in the USCM. While it provides no protection, some officers wear it in the field to make themselves more recognisable."
-	icon_state = "cap_officer"
+	icon_state = "command_cap"
+	flags_atom = FPRINT|NO_SNOW_TYPE
 
 /obj/item/clothing/head/cmcap/flap
 	name = "\improper USCM expedition cap"
-	desc = "It's a cap, with flaps. A patch stitched across the front reads \"<b>USS ALMAYER</b>\"."
+	desc = "A casual cap issued as part of the non-combat uniform. While it only protects from the sun, it's much more comfortable than a helmet. This one comes with flaps to keep the sun off your neck."
 	icon = 'icons/obj/items/clothing/cm_hats.dmi'
 	icon_state = "flapcap"
 	flags_marine_hat = HAT_GARB_OVERLAY
@@ -411,10 +408,8 @@
 /obj/item/clothing/head/cmcap/reporter
 	name = "combat correspondent cap"
 	desc = "A faithful cap for any terrain war correspondents may find themselves in."
-	icon = 'icons/mob/humans/onmob/contained/war_correspondent.dmi'
-	icon_state = "wc_flagcap"
-	item_state = "wc_flagcap"
-	contained_sprite = TRUE
+	icon_state = "cc_flagcap"
+	item_state = "cc_flagcap"
 	flags_atom = NO_SNOW_TYPE|NO_NAME_OVERRIDE
 	flags_marine_hat = HAT_GARB_OVERLAY
 
@@ -475,6 +470,10 @@
 	name = "\improper USCM senior provost beret"
 	icon_state = "coblackberet"
 	desc = "A beret with the USCM Military Police insignia emblazoned on it."
+
+/obj/item/clothing/head/beret/marine/mp/provost/chief
+	name = "\improper USCM provost command beret"
+	icon_state = "pvciberet"
 
 /obj/item/clothing/head/beret/marine/mp/tis
 	name = "\improper UAAC-TIS Special Agent Beret"
@@ -564,6 +563,15 @@
 	desc = "A beret with the lieutenant insignia emblazoned on it. It inspires a feeling of respect."
 	icon_state = "beret_badge"
 
+/obj/item/clothing/head/beret/marine/ro
+	name = "\improper USCM quartermaster beret"
+	desc = "A beret with the sergeant insignia emblazoned on it. It symbolizes hard work and shady business."
+	icon = 'icons/obj/items/clothing/cm_hats.dmi'
+	icon_state = "ro_beret"
+	item_icons = list(
+		WEAR_HEAD = 'icons/mob/humans/onmob/head_1.dmi'
+	)
+
 //==========================//PROTECTIVE\\===============================\\
 //=======================================================================\\
 
@@ -643,7 +651,7 @@
 
 /obj/item/clothing/head/CMB
 	name = "\improper Colonial Marshal Bureau cap"
-	desc = "A dark cap enscribed with the powerful letters of 'MARSHAL' representing justice, authority, and protection in the outer rim. The laws of the Earth stretch beyond the Sol."
+	desc = "A black cap boldly presenting the acronym 'CMB'. Made using durable fabric, it might stop a very low caliber round from penetrating it, or a stab from piercing it. That isn't to say you won't have a dent in your head."
 	icon = 'icons/obj/items/clothing/cm_hats.dmi'
 	item_icons = list(
 		WEAR_HEAD = 'icons/mob/humans/onmob/head_1.dmi'

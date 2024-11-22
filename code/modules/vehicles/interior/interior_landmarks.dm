@@ -146,6 +146,28 @@
 
 	qdel(src)
 
+/obj/effect/landmark/interior/spawn/vehicle_driver_seat/armor/movie
+	name = "movie apc seat spawner"
+	var/buckling_y = 0
+
+/obj/effect/landmark/interior/spawn/vehicle_driver_seat/armor/movie/on_load(datum/interior/I)
+	var/obj/structure/bed/chair/comfy/vehicle/driver/S = new(loc)
+
+	S.icon = icon
+	S.icon_state = icon_state
+	S.layer = layer
+	S.vehicle = I.exterior
+	S.required_skill = S.vehicle.required_skill
+	S.setDir(dir)
+	S.alpha = alpha
+	S.update_icon()
+	S.handle_rotation()
+	S.pixel_x = pixel_x
+	S.pixel_y = pixel_y
+	S.buckling_y = buckling_y
+
+	qdel(src)
+
 /obj/effect/landmark/interior/spawn/vehicle_support_gunner_seat
 	name = "1st support gunner's seat spawner"
 	icon = 'icons/obj/vehicles/interiors/general.dmi'
@@ -215,19 +237,23 @@
 	icon_state = "wall_phone"
 	color = "yellow"
 
-/obj/effect/landmark/interior/spawn/telephone/on_load(datum/interior/I)
-	var/obj/structure/phone_base/phone = new(loc)
+/obj/effect/landmark/interior/spawn/telephone/toc
+	icon = 'icons/obj/vehicles/interiors/movie.dmi'
+	icon_state = "wall_phone"
 
-	phone.icon = icon
-	phone.icon_state = icon_state
-	phone.layer = layer
-	phone.setDir(dir)
-	phone.alpha = alpha
-	phone.update_icon()
-	phone.pixel_x = pixel_x
-	phone.pixel_y = pixel_y
-	phone.phone_category = "Vehicles"
-	phone.phone_id = I.exterior.name
+/obj/effect/landmark/interior/spawn/telephone/on_load(datum/interior/I)
+	var/obj/structure/phone_base/Phone = new(loc)
+
+	Phone.icon = icon
+	Phone.icon_state = icon_state
+	Phone.layer = layer
+	Phone.setDir(dir)
+	Phone.alpha = alpha
+	Phone.update_icon()
+	Phone.pixel_x = pixel_x
+	Phone.pixel_y = pixel_y
+	Phone.phone_category = "Vehicles"
+	Phone.phone_id = replacetext(Phone.phone_id, "\improper", "") // this has to be done because phone IDs need to be the same as their display name (\improper doesn't display, obviously)
 
 	qdel(src)
 
@@ -246,6 +272,7 @@
 	R.layer = layer
 	R.pixel_x = pixel_x
 	R.pixel_y = pixel_y
+	R.density = density
 	R.vehicle = I.exterior
 	R.setDir(dir)
 	R.update_icon()
@@ -267,7 +294,9 @@
 	V.vehicle = I.exterior
 	V.pixel_x = pixel_x
 	V.pixel_y = pixel_y
+	V.layer = layer
 	V.alpha = alpha
+	V.layer = layer
 	V.update_icon()
 
 	qdel(src)
@@ -286,6 +315,7 @@
 	V.vehicle = I.exterior
 	V.pixel_x = pixel_x
 	V.pixel_y = pixel_y
+	V.layer = layer
 	V.alpha = alpha
 
 	qdel(src)
@@ -307,5 +337,27 @@
 	V.pixel_y = pixel_y
 	V.alpha = alpha
 	V.icon = icon
+
+	qdel(src)
+
+//AA APC fancy viewport spawner
+/obj/effect/landmark/interior/spawn/interior_viewport/terminal
+	name = "ADS-C viewport console spawner"
+	icon = 'icons/obj/vehicles/interiors/general.dmi'
+	icon_state = "viewport_terminal"
+	layer = INTERIOR_DOOR_LAYER
+	color = "#009cb8"
+
+/obj/effect/landmark/interior/spawn/interior_viewport/terminal/on_load(datum/interior/I)
+	var/obj/structure/interior_viewport/terminal/V = new(loc)
+
+	V.dir = dir
+	V.vehicle = I.exterior
+	V.pixel_x = pixel_x
+	V.pixel_y = pixel_y
+	V.layer = layer
+	V.alpha = alpha
+	V.layer = layer
+	V.update_icon()
 
 	qdel(src)

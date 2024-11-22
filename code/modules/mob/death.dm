@@ -44,11 +44,11 @@
 /mob/proc/dust_animation()
 	return
 
-/mob/proc/death(datum/cause_data/cause_data, gibbed = 0, deathmessage = "seizes up and falls limp...")
+/mob/proc/death(datum/cause_data/cause_data, gibbed = 0, deathmessage = "seizes up and falls limp...", should_deathmessage = TRUE)
 	if(stat == DEAD)
 		return 0
 
-	if(!gibbed)
+	if(!gibbed && should_deathmessage)
 		visible_message("<b>\The [src.name]</b> [deathmessage]")
 
 	if(cause_data && !istype(cause_data))
@@ -57,13 +57,11 @@
 
 	set_stat(DEAD)
 
-	update_canmove()
-
 	dizziness = 0
 	jitteriness = 0
 
 	if(client)
-		client.change_view(world_view_size) //just so we never get stuck with a large view somehow
+		client.change_view(GLOB.world_view_size) //just so we never get stuck with a large view somehow
 
 	if(s_active) //Close inventory screens.
 		s_active.storage_close(src)

@@ -3,7 +3,7 @@
 	desc = "A dusty sword commonly seen in historical museums. Where you got this is a mystery, for sure. Only a mercenary would be nuts enough to carry one of these. Sharpened to deal massive damage."
 	icon_state = "mercsword"
 	item_state = "machete"
-	flags_atom = FPRINT|CONDUCT
+	flags_atom = FPRINT|QUICK_DRAWABLE|CONDUCT
 	flags_equip_slot = SLOT_WAIST
 	force = MELEE_FORCE_STRONG
 	throwforce = MELEE_FORCE_WEAK
@@ -49,9 +49,15 @@
 
 /obj/item/weapon/sword/machete/arnold
 	name = "\improper M2100 \"Ngájhe\" machete"
-	desc = "An older issue USCM machete, never left testing. Designed in the Central African Republic. The notching made it hard to clean, and as such the USCM refused to adopt it - despite the superior bludgeoning power offered. Difficult to carry with the usual kit."
+	desc = "An older issue USCM machete, never left testing. Designed in the Central African Republic. The notching made it hard to clean, and as such the USCM refused to adopt it - despite the superior bludgeoning power offered. Difficult to carry with the usual kit ."
 	icon_state = "arnold-machete"
+	item_state = "arnold-machete"
 	force = MELEE_FORCE_TIER_11
+
+/obj/item/weapon/sword/machete/arnold/weak
+	name = "\improper M2100 machete"
+	desc = "An older issue USCM machete, never left testing. Designed in the Central African Republic. The notching made it hard to clean, and as such the USCM refused to adopt it - despite the superior bludgeoning power offered. This one has been poorly maintained and as such can't really outperform adopted M2132 machete."
+	force = MELEE_FORCE_STRONG
 
 /obj/item/weapon/sword/hefa
 	name = "HEFA sword"
@@ -114,7 +120,7 @@
 	icon_state = "throwing_knife"
 	item_state = "combat_knife"
 	desc = "A military knife designed to be thrown at the enemy. Much quieter than a firearm, but requires a steady hand to be used optimally, although you should probably just use a gun instead."
-	flags_atom = FPRINT|CONDUCT
+	flags_atom = FPRINT|QUICK_DRAWABLE|CONDUCT
 	sharp = IS_SHARP_ITEM_ACCURATE
 	force = MELEE_FORCE_TIER_1
 	w_class = SIZE_SMALL
@@ -125,6 +131,7 @@
 	attack_verb = list("slashed", "stabbed", "sliced", "torn", "ripped", "diced", "cut")
 	flags_equip_slot = SLOT_STORE|SLOT_FACE
 	flags_armor_protection = SLOT_FACE
+	flags_item = CAN_DIG_SHRAPNEL
 
 /obj/item/weapon/unathiknife
 	name = "duelling knife"
@@ -135,17 +142,6 @@
 	attack_verb = list("ripped", "torn", "cut")
 	force = MELEE_FORCE_STRONG
 	throwforce = MELEE_FORCE_STRONG
-	edge = 1
-
-
-/obj/item/weapon/pizza_cutter
-	name = "\improper PIZZA TIME"
-	icon = 'icons/obj/items/weapons/weapons.dmi'
-	icon_state = "pizza_cutter"
-	item_state = "pizza_cutter"
-	desc = "Before you is a holy relic of a bygone era when the great Pizza Lords reigned supreme. You know either that or it's just a big damn pizza cutter."
-	sharp = IS_SHARP_ITEM_ACCURATE
-	force = MELEE_FORCE_VERY_STRONG
 	edge = 1
 
 ///For digging shrapnel out of OTHER people, not yourself. Triggered by human/attackby() so target is definitely human. User might not be.
@@ -213,6 +209,8 @@
 			else
 				INVOKE_ASYNC(embedded_human, TYPE_PROC_REF(/mob, emote), "me", 1, pick("winces.", "grimaces.", "flinches."))
 
+		SEND_SIGNAL(embedded_human, COMSIG_HUMAN_SHRAPNEL_REMOVED)
+
 	else
 		to_chat(user, SPAN_NOTICE("You couldn't find any shrapnel."))
 
@@ -273,8 +271,6 @@
 	if(loc != user) //Only do unique stuff if you are holding it
 		return ..()
 
-	if(!do_after(user, interaction_time, INTERRUPT_INCAPACITATED, BUSY_ICON_HOSTILE))
-		return
 	playsound(user, 'sound/weapons/flipblade.ogg', 15, 1)
 	change_razor_state(!razor_opened)
 	to_chat(user, SPAN_NOTICE("You [razor_opened ? "reveal" : "hide"] [src]'s blade."))
@@ -375,3 +371,29 @@
 	human_user.apply_damage(rand(1,5), BRUTE, "head", src)
 	human_user.update_hair()
 
+/obj/item/weapon/straight_razor/attack(mob/target, mob/user)
+	if((!ishuman(target)) || (user.a_intent == INTENT_HARM) || !razor_opened)
+		return ..()
+	var/mob/living/carbon/human/poor_bastard = target
+
+	var/timer = 10 SECONDS
+	var/message = "\The [user] begins to shave \the [poor_bastard]!"
+	if(skillcheck(user, SKILL_LEADERSHIP, SKILL_LEAD_EXPERT))
+		timer = 5 SECONDS
+		message = "\The [user] begins to <b>expertly</b> shave \the [poor_bastard]!"
+
+	user.visible_message(SPAN_WARNING(message))
+	if(!do_after(user, timer, INTERRUPT_ALL, BUSY_ICON_HOSTILE))
+		return
+
+	switch(user.zone_selected)
+		if("mouth")
+			poor_bastard.f_style = "Shaved"
+			user.visible_message(SPAN_WARNING("\The [user] shaves off \the [poor_bastard]'s facial hair!"))
+		if("head")
+			poor_bastard.h_style = pick("Skinhead", "Bald")
+			user.visible_message(SPAN_WARNING("\The [user] shaves off \the [poor_bastard]'s hair!"))
+
+	poor_bastard.apply_damage(rand(1,5), BRUTE, "head", src)
+	poor_bastard.update_hair()
+	return TRUE

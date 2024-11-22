@@ -82,7 +82,7 @@
 	if(current_pain - new_pain_reduction > max_pain)
 		return 100
 
-	var/percentage = round(((current_pain - new_pain_reduction) / max_pain) * 100)
+	var/percentage = floor(((current_pain - new_pain_reduction) / max_pain) * 100)
 	if(percentage < 0)
 		return 0
 	else
@@ -193,7 +193,7 @@
 			if(!isnull(threshold_horrible))
 				activate_horrible()
 
-	if(new_level >= PAIN_LEVEL_SEVERE)
+	if(new_level >= PAIN_LEVEL_SEVERE && feels_pain)
 		RegisterSignal(source_mob, COMSIG_MOB_DEVOURED, PROC_REF(handle_devour), override = TRUE)
 
 	last_level = new_level
@@ -228,11 +228,7 @@
 				activate_severe()
 
 	if(new_level < PAIN_LEVEL_SEVERE)
-		UnregisterSignal(source_mob, list(
-			COMSIG_MOB_DRAGGED,
-			COMSIG_MOB_DEVOURED,
-			COMSIG_MOVABLE_PRE_THROW
-		))
+		UnregisterSignal(source_mob, COMSIG_MOB_DEVOURED)
 
 	last_level = new_level
 	addtimer(CALLBACK(src, PROC_REF(before_update)), PAIN_UPDATE_FREQUENCY)

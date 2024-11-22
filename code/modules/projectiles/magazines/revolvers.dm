@@ -3,7 +3,7 @@
 
 /obj/item/ammo_magazine/revolver
 	name = "\improper M44 speed loader (.44)"
-	desc = "A revolver speed loader."
+	desc = "A revolver speed loader for the M44 revolver."
 	default_ammo = /datum/ammo/bullet/revolver
 	flags_equip_slot = NO_FLAGS
 	caliber = ".44"
@@ -24,6 +24,7 @@
 
 /obj/item/ammo_magazine/revolver/heavy
 	name = "\improper M44 heavy speed loader (.44)"
+	desc = "A revolver speed loader containing heavy bullets. While less damaging overall than the traditional rounds, they are more accurate."
 	default_ammo = /datum/ammo/bullet/revolver/heavy
 	caliber = ".44"
 	ammo_band_color = REVOLVER_TIP_COLOR_HEAVY
@@ -69,29 +70,30 @@
 	icon_state = "zhnk72loader_shrapnel"
 
 /obj/item/ammo_magazine/revolver/small
-	name = "\improper S&W speed loader (.38)"
+	name = "\improper .38 overpressure speedloader (.38 +P)"
+	desc = "A speedloader of 6 handloaded overpressure .38 bullets. Substantial impact, but suffers from accuracy issues compared to factory ammunition. Liable to damage firearms not built to handle the chamber pressure."
 	default_ammo = /datum/ammo/bullet/revolver/small
-	caliber = ".38"
+	caliber = ".38 +P"
 	icon = 'icons/obj/items/weapons/guns/ammo_by_faction/colony.dmi'
 	icon_state = "38"
 	max_rounds = 6
 	gun_type = /obj/item/weapon/gun/revolver/small
 
-/obj/item/ammo_magazine/revolver/cmb
-	name = "\improper Spearhead hollowpoint speed loader (.357)"
-	desc = "This speedloader was created for the Colonial Marshals' most commonly issued sidearm, loaded with hollowpoint rounds either for colonies with wildlife problems or orbital stations, which favor the lesser penetration over other ammunition to lessen the risk of hull breaches. In exchange, they're near useless against armored targets, but what's the chance of that being a problem on a space station?"
-	default_ammo = /datum/ammo/bullet/revolver/small/hollowpoint
+/obj/item/ammo_magazine/revolver/spearhead
+	name = "\improper Spearhead speed loader (.357)"
+	desc = "A speedloader of 6 FMJ .357 bullets, uncommonly issued to Colonial Marshals due to overpenetration risks."
+	default_ammo = /datum/ammo/bullet/revolver/small
 	caliber = ".357"
 	icon = 'icons/obj/items/weapons/guns/ammo_by_faction/colony.dmi'
-	icon_state = "cmb_hp"
-	max_rounds = 6
-	gun_type = /obj/item/weapon/gun/revolver/cmb
-
-/obj/item/ammo_magazine/revolver/cmb/normalpoint //put these in the marshal ert - ok sure :)
-	name = "\improper Spearhead speed loader (.357)"
-	desc = "This speedloader is fitted with standard .357 revolver bullets. A surprising rarity, as most CMB revolvers are issued to Marshals on colonies with wildlife, or weakly-hulled space stations."
-	default_ammo = /datum/ammo/bullet/revolver/small
 	icon_state = "cmb"
+	max_rounds = 6
+	gun_type = /obj/item/weapon/gun/revolver/spearhead
+
+/obj/item/ammo_magazine/revolver/spearhead/hollowpoint
+	name = "\improper Spearhead speed loader (.357)"
+	desc = "A speedloader of 6 hollowpoint .357 bullets, commonly issued to Colonial Marshals to both prevent overpenetration and improve performance against unarmored criminals or wildlife."
+	default_ammo = /datum/ammo/bullet/revolver/small/hollowpoint
+	icon_state = "cmb_hp"
 
 /**
  * MATEBA REVOLVER
@@ -181,7 +183,7 @@
 
 /obj/item/ammo_magazine/internal/revolver/small
 	default_ammo = /datum/ammo/bullet/revolver/small
-	caliber = ".38"
+	caliber = ".357 Hotload"
 	gun_type = /obj/item/weapon/gun/revolver/small
 
 //-------------------------------------------------------
@@ -204,15 +206,15 @@
 //-------------------------------------------------------
 //MARSHALS REVOLVER //Spearhead exists in Alien cannon.
 
-/obj/item/ammo_magazine/internal/revolver/cmb
+/obj/item/ammo_magazine/internal/revolver/spearhead
 	default_ammo = /datum/ammo/bullet/revolver/small
 	caliber = ".357"
-	gun_type = /obj/item/weapon/gun/revolver/cmb
+	gun_type = /obj/item/weapon/gun/revolver/spearhead
 
-/obj/item/ammo_magazine/internal/revolver/cmb/hollowpoint
+/obj/item/ammo_magazine/internal/revolver/spearhead/hollowpoint
 	default_ammo = /datum/ammo/bullet/revolver/small/hollowpoint
 	caliber = ".357"
-	gun_type = /obj/item/weapon/gun/revolver/cmb
+	gun_type = /obj/item/weapon/gun/revolver/spearhead
 
 //-------------------------------------------------------
 //BIG GAME HUNTER'S REVOLVER

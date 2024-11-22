@@ -1,12 +1,12 @@
 /obj/item/hardpoint/support/overdrive_enhancer
-	name = "Overdrive Enhancer"
+	name = "\improper Overdrive Enhancer"
 	desc = "Increases the movement speed of the vehicle it's attached to"
 
 	icon_state = "odrive_enhancer"
 	disp_icon = "tank"
 	disp_icon_state = "odrive_enhancer"
 
-	health = 250
+	health = 2000
 
 	// 20% movespeed increase. Remember that movespeed is given in delay
 	buff_multipliers = list(

@@ -67,6 +67,12 @@
 	html_link = "images/1/18/Map_icecolony.png"
 	color = "cyan"
 
+/obj/item/map/ice_colony_map/v1
+	html_link = "https://cm-ss13.com/w/images/8/88/Ice_V1.png"
+
+/obj/item/map/ice_colony_map/v2
+	html_link = "https://cm-ss13.com/w/images/c/cf/Ice_Colony_v2.png"
+
 /obj/item/map/ice_colony_map_v3
 	name = "\improper Shivas Snowball map"
 	desc = "A labelled print out of the anterior scan of the UA colony Shivas Snowball."
@@ -144,7 +150,10 @@ GLOBAL_LIST_INIT_TYPED(map_type_list, /obj/item/map, setup_all_maps())
 /proc/setup_all_maps()
 	return list(
 		MAP_LV_624 = new /obj/item/map/lazarus_landing_map(),
+		MAP_LV_624_REPAIRED = new /obj/item/map/lazarus_landing_map(),
 		MAP_ICE_COLONY = new /obj/item/map/ice_colony_map(),
+		MAP_ICE_COLONY_V1 = new /obj/item/map/ice_colony_map/v1(),
+		MAP_ICE_COLONY_V2 = new /obj/item/map/ice_colony_map/v2(),
 		MAP_ICE_COLONY_V3 = new /obj/item/map/ice_colony_map_v3(),
 		MAP_WHISKEY_OUTPOST = new /obj/item/map/whiskey_outpost_map(),
 		MAP_BIG_RED = new /obj/item/map/big_red_map(),
@@ -156,6 +165,7 @@ GLOBAL_LIST_INIT_TYPED(map_type_list, /obj/item/map, setup_all_maps())
 		MAP_KUTJEVO = new /obj/item/map/kutjevo_map(),
 		MAP_LV522_CHANCES_CLAIM = new /obj/item/map/lv522_map(),
 		MAP_NEW_VARADERO = new /obj/item/map/new_varadero(),
+		MAP_NEW_VARADERO_REPAIRED = new /obj/item/map/new_varadero(),
 		MAP_DERELICT_ALMAYER = new /obj/item/map/almayer(),
 	)
 

@@ -29,14 +29,15 @@ GLOBAL_VAR_INIT(radio_communication_clarity, 100)
 
 // Spawn stuff
 #define DEFAULT_SPAWN_XENO_STRING XENO_CASTE_DRONE
-#define GAME_MASTER_AI_XENOS list(XENO_CASTE_DRONE, XENO_CASTE_RUNNER, XENO_CASTE_LURKER, XENO_CASTE_CRUSHER)
+#define GAME_MASTER_AI_XENOS list(XENO_CASTE_DRONE, XENO_CASTE_RUNNER, XENO_CASTE_LURKER, XENO_CASTE_CRUSHER, XENO_CASTE_FACEHUGGER)
+#define DEFAULT_SPAWN_HIVE_STRING XENO_HIVE_NORMAL
 
 #define DEFAULT_XENO_AMOUNT_TO_SPAWN 1
 
 // Behavior stuff
 #define DEFAULT_BEHAVIOR_STRING "Attack"
-#define SELECTABLE_XENO_BEHAVIORS list("Attack", "Capture", "Hive")
-#define SELECTABLE_XENO_BEHAVIORS_ASSOC list("Attack" = /datum/component/ai_behavior_override/attack, "Capture" = /datum/component/ai_behavior_override/capture, "Hive" = /datum/component/ai_behavior_override/hive)
+#define SELECTABLE_XENO_BEHAVIORS list("Attack", "Capture", "Hive", "Build")
+#define SELECTABLE_XENO_BEHAVIORS_ASSOC list("Attack" = /datum/component/ai_behavior_override/attack, "Capture" = /datum/component/ai_behavior_override/capture, "Hive" = /datum/component/ai_behavior_override/hive, "Build" = /datum/component/ai_behavior_override/build)
 
 // Objective stuff
 #define OBJECTIVE_NUMBER_OPTIONS list("zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine")
@@ -57,6 +58,7 @@ GLOBAL_VAR_INIT(radio_communication_clarity, 100)
 	var/list/submenu_types = list(
 		/obj/structure/pipes/vents = /datum/game_master_submenu/ambush/vents,
 		/obj/structure/tunnel = /datum/game_master_submenu/ambush/tunnels,
+		/mob/living/carbon/human = /datum/game_master_submenu/infest,
 	)
 
 	/// List of current submenus
@@ -70,6 +72,9 @@ GLOBAL_VAR_INIT(radio_communication_clarity, 100)
 
 	/// The xeno selected to be spawned in the spawn section
 	var/selected_xeno = DEFAULT_SPAWN_XENO_STRING
+
+	/// The hive selected to be spawned in the spawn section
+	var/selected_hive = DEFAULT_SPAWN_HIVE_STRING
 
 	/// The amount of xenos to spawn in the spawn section
 	var/xeno_spawn_count = DEFAULT_XENO_AMOUNT_TO_SPAWN
@@ -112,7 +117,7 @@ GLOBAL_VAR_INIT(radio_communication_clarity, 100)
 	current_submenus = list()
 
 	game_master_phone = new(null)
-	game_master_phone.AddComponent(/datum/component/phone/virtual, "Game Master", "white", "Company Command", null, PHONE_DO_NOT_DISTURB_ON, list(FACTION_MARINE, FACTION_COLONIST, FACTION_WY), list(FACTION_MARINE, FACTION_COLONIST, FACTION_WY), null, using_client)
+	game_master_phone.AddComponent(/datum/component/phone/virtual, "Game Master", "white", "Company Command", null, PHONE_DND_ON, list(FACTION_MARINE, FACTION_COLONIST, FACTION_WY), list(FACTION_MARINE, FACTION_COLONIST, FACTION_WY), null, using_client)
 
 	game_master_client.click_intercept = src
 
@@ -139,6 +144,7 @@ GLOBAL_VAR_INIT(radio_communication_clarity, 100)
 
 	// Spawn stuff
 	data["selected_xeno"] = selected_xeno
+	data["selected_hive"] = selected_hive
 	data["spawn_ai"] = spawn_ai
 	data["spawn_click_intercept"] = spawn_click_intercept
 	data["xeno_spawn_count"] = xeno_spawn_count
@@ -152,7 +158,8 @@ GLOBAL_VAR_INIT(radio_communication_clarity, 100)
 	data["game_master_objectives"] = length(GLOB.game_master_objectives) ? GLOB.game_master_objectives : ""
 
 	// Communication stuff
-	data["communication_clarity"] = GLOB.radio_communication_clarity
+	data["radio_clarity"] = GLOB.radio_communication_clarity
+	data["radio_clarity_example"] = stars("The quick brown fox jumped over the lazy dog.", GLOB.radio_communication_clarity)
 
 	return data
 
@@ -162,6 +169,8 @@ GLOBAL_VAR_INIT(radio_communication_clarity, 100)
 	var/list/data = list()
 
 	data["spawnable_xenos"] = GAME_MASTER_AI_XENOS
+
+	data["spawnable_hives"] = ALL_XENO_HIVES
 
 	data["selectable_behaviors"] = SELECTABLE_XENO_BEHAVIORS
 
@@ -186,6 +195,11 @@ GLOBAL_VAR_INIT(radio_communication_clarity, 100)
 			xeno_spawn_count = DEFAULT_XENO_AMOUNT_TO_SPAWN
 			return
 
+		if("set_selected_hive")
+			selected_hive = params["new_hive"]
+			xeno_spawn_count = DEFAULT_XENO_AMOUNT_TO_SPAWN
+			return
+
 		if("xeno_spawn_ai_toggle")
 			spawn_ai = !spawn_ai
 			return
@@ -206,6 +220,15 @@ GLOBAL_VAR_INIT(radio_communication_clarity, 100)
 
 			for(var/mob/living/carbon/xenomorph/cycled_xeno in GLOB.alive_mob_list)
 				qdel(cycled_xeno)
+
+			return
+
+		if("delete_xenos_in_view")
+			if(tgui_alert(ui.user, "Do you want to delete all xenos within your view range?", "Confirmation", list("Yes", "No")) != "Yes")
+				return
+
+			for(var/mob/living/carbon/xenomorph/viewed_xeno in view(ui.user.client))
+				qdel(viewed_xeno)
 
 			return
 
@@ -272,7 +295,7 @@ GLOBAL_VAR_INIT(radio_communication_clarity, 100)
 		if("use_game_master_phone")
 			game_master_phone.attack_hand(ui.user)
 
-		if("set_communication_clarity")
+		if("set_radio_clarity")
 			var/new_clarity = text2num(params["clarity"])
 			if(!isnum(new_clarity))
 				return
@@ -319,7 +342,7 @@ GLOBAL_VAR_INIT(radio_communication_clarity, 100)
 					qdel(object)
 				return TRUE
 
-			var/spawning_xeno_type = RoleAuthority.get_caste_by_text(selected_xeno)
+			var/spawning_xeno_type = GLOB.RoleAuthority.get_caste_by_text(selected_xeno)
 
 			if(!spawning_xeno_type)
 				to_chat(user, SPAN_NOTICE(SPAN_BOLD("Unable to find xeno type by name: [selected_xeno]")))
@@ -328,7 +351,7 @@ GLOBAL_VAR_INIT(radio_communication_clarity, 100)
 			var/turf/spawn_turf = get_turf(object)
 
 			for(var/i = 1 to xeno_spawn_count)
-				new spawning_xeno_type(spawn_turf, null, XENO_HIVE_NORMAL, !spawn_ai)
+				new spawning_xeno_type(spawn_turf, null, selected_hive, !spawn_ai)
 
 			return TRUE
 
@@ -383,7 +406,7 @@ GLOBAL_VAR_INIT(radio_communication_clarity, 100)
 			if(!object || !z_level)
 				return
 
-			SSminimaps.add_marker(object, z_level, MINIMAP_FLAG_USCM, given_image = background)
+			SSminimaps.add_marker(object, z_level, MINIMAP_FLAG_ALL, given_image = background)
 
 			var/objective_info = tgui_input_text(user, "Objective info?", "Objective Info")
 
@@ -440,6 +463,7 @@ GLOBAL_VAR_INIT(radio_communication_clarity, 100)
 
 #undef DEFAULT_SPAWN_XENO_STRING
 #undef GAME_MASTER_AI_XENOS
+#undef DEFAULT_SPAWN_HIVE_STRING
 #undef DEFAULT_XENO_AMOUNT_TO_SPAWN
 
 #undef OBJECTIVE_NUMBER_OPTIONS

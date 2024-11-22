@@ -26,7 +26,7 @@
 	. = ..()
 
 	RegisterSignal(parent, COMSIG_XENO_HANDLE_AI_SHOT, PROC_REF(stop_lurking))
-	RegisterSignal(parent, COMSIG_XENO_HANDLE_CRIT, PROC_REF(stop_lurking))
+	RegisterSignal(parent, COMSIG_XENO_ENTER_CRIT, PROC_REF(stop_lurking))
 	RegisterSignal(parent, COMSIG_XENO_USED_POUNCE, PROC_REF(stop_lurking))
 
 	addtimer(CALLBACK(src, PROC_REF(check_annoyance)), AI_CHECK_ANNOYANCE_COOLDOWN, TIMER_UNIQUE|TIMER_LOOP|TIMER_DELETE_ME)
@@ -67,8 +67,13 @@
 			continue
 
 		var/blocked = FALSE
-		for(var/atom/potential_blocker as anything in potential_home)
-			if(potential_blocker != idle_xeno && (potential_blocker.can_block_movement || potential_blocker.density))
+		for(var/obj/structure/potential_blocker in potential_home)
+			if(potential_blocker.unslashable && potential_blocker.can_block_movement && potential_blocker.density)
+				blocked = TRUE
+				break
+
+		for(var/mob/potential_blocker in potential_home)
+			if(potential_blocker != idle_xeno && potential_blocker.can_block_movement && potential_blocker.density)
 				blocked = TRUE
 				break
 
@@ -76,7 +81,24 @@
 			continue
 
 		var/preferred = FALSE
+		for(var/obj/structure/structure in potential_home)
+			if(structure.unslashable && structure.can_block_movement && structure.density)
+				continue
+
+			if(structure.invisibility == 101)
+				continue
+
+			preferred = TRUE
+			break
+
 		for(var/turf/closed/touching_turf in orange(1, potential_home))
+			if(get_dir(potential_home, touching_turf) in GLOB.diagonals)
+				continue
+
+			preferred = TRUE
+			break
+
+		for(var/obj/item/stack/sheet/sheet in potential_home)
 			preferred = TRUE
 			break
 
@@ -194,12 +216,14 @@
 #undef LURKER_BAITS_BEFORE_AMBUSH
 
 /datum/xeno_ai_movement/linger/lurking/proc/interact_random(mob/living/carbon/xenomorph/X)
-	for(var/obj/potential_interaction in orange(1, X))
-		if(istype(potential_interaction, /obj/structure/window_frame))
+	for(var/atom/potential_interaction in orange(1, X))
+		if(istype(potential_interaction, /obj/structure/shuttle))
 			continue
-		if(istype(potential_interaction, /obj/structure/pipes))
+		if(istype(potential_interaction, /turf/closed/shuttle))
 			continue
-		if(istype(potential_interaction, /obj/structure/sign))
+		if(istype(potential_interaction, /obj/effect))
+			continue
+		if(istype(potential_interaction, /turf/open))
 			continue
 		if(!potential_interaction.xeno_ai_act(X))
 			continue
@@ -219,7 +243,7 @@
 
 	RegisterSignal(parent, COMSIG_MOVABLE_MOVED, PROC_REF(lurking_parent_moved))
 
-	var/datum/action/xeno_action/activable/pounce/lurker/LPA = get_xeno_action_by_type(lurking_xeno, /datum/action/xeno_action/activable/pounce/lurker)
+	var/datum/action/xeno_action/activable/pounce/lurker/LPA = get_action(lurking_xeno, /datum/action/xeno_action/activable/pounce/lurker)
 	if(LPA && istype(LPA))
 		LPA.knockdown = TRUE
 		LPA.freeze_self = TRUE
@@ -247,7 +271,7 @@
 		registered_turfs += cycled_open_turf
 
 		var/mob/living/carbon/human/possible_target = locate() in cycled_open_turf
-		if(possible_target && (!parent.current_target || get_dist(parent, possible_target) < get_dist(parent, parent.current_target)) && parent.check_mob_target(possible_target))
+		if(possible_target && (!parent.current_target || get_dist(parent, possible_target) < get_dist(parent, parent.current_target)) && possible_target.ai_can_target(parent))
 			parent.current_target = possible_target
 
 /datum/xeno_ai_movement/linger/lurking/proc/unregister_turf_signals()
@@ -262,7 +286,7 @@
 		return
 
 	var/mob/living/carbon/human/possible_target = entering_atom
-	if(!parent.current_target || get_dist(parent, possible_target) < get_dist(parent, parent.current_target) && parent.check_mob_target(possible_target))
+	if(!parent.current_target || get_dist(parent, possible_target) < get_dist(parent, parent.current_target) && possible_target.ai_can_target(parent))
 		parent.current_target = possible_target
 
 /datum/xeno_ai_movement/linger/lurking/proc/lurking_parent_moved(atom/movable/moving_atom, atom/oldloc, direction, Forced)

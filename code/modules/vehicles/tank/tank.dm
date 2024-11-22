@@ -15,8 +15,7 @@
 
 	interior_map = /datum/map_template/interior/tank
 
-	//tank always has 2 crewmen slot reserved and 1 general slot for other roles.
-	passengers_slots = 1
+	passengers_slots = 4
 	//this is done in case VCs die inside the tank, so that someone else can come in and take them out.
 	revivable_dead_slots = 2
 	xenos_slots = 4
@@ -32,8 +31,8 @@
 
 	vehicle_flags = VEHICLE_CLASS_MEDIUM
 
-	move_max_momentum = 3
-	move_momentum_build_factor = 1.8
+	move_max_momentum = 2
+	move_momentum_build_factor = 1.5
 	move_turn_momentum_loss_factor = 0.6
 
 	light_range = 4
@@ -65,15 +64,15 @@
 
 	dmg_multipliers = list(
 		"all" = 1,
-		"acid" = 1.5, // Acid melts the tank
-		"slash" = 0.7, // Slashing a massive, solid chunk of metal does very little except leave scratches
+		"acid" = 0.5,
+		"slash" = 1.6,
 		"bullet" = 0.4,
 		"explosive" = 0.8,
 		"blunt" = 0.8,
 		"abstract" = 1
 	)
 
-	explosive_resistance = 400
+	explosive_resistance = 500
 
 /obj/vehicle/multitile/tank/initialize_cameras(change_tag = FALSE)
 	if(!camera)
@@ -90,7 +89,7 @@
 /obj/vehicle/multitile/tank/load_role_reserved_slots()
 	var/datum/role_reserved_slots/RRS = new
 	RRS.category_name = "Crewmen"
-	RRS.roles = list(JOB_CREWMAN, JOB_WO_CREWMAN, JOB_UPP_CREWMAN, JOB_PMC_CREWMAN)
+	RRS.roles = list(JOB_TANK_CREW, JOB_WO_CREWMAN, JOB_UPP_CREWMAN, JOB_PMC_CREWMAN)
 	RRS.total = 2
 	role_reserved_slots += RRS
 
@@ -157,7 +156,7 @@
 	if(!T)
 		return FALSE
 
-	if(direction == reverse_dir[T.dir] || direction == T.dir)
+	if(direction == GLOB.reverse_dir[T.dir] || direction == T.dir)
 		return FALSE
 
 	T.user_rotation(user, turning_angle(T.dir, direction))
@@ -165,6 +164,39 @@
 
 	return TRUE
 
+/obj/vehicle/multitile/tank/MouseDrop_T(mob/dropped, mob/user)
+	. = ..()
+	if((dropped != user) || !isxeno(user))
+		return
+
+	if(health > 0)
+		to_chat(user, SPAN_XENO("We can't jump over [src] until it is destroyed!"))
+		return
+
+	var/turf/current_turf = get_turf(user)
+	var/dir_to_go = get_dir(current_turf, src)
+	for(var/i in 1 to 3)
+		current_turf = get_step(current_turf, dir_to_go)
+		if(!(current_turf in locs))
+			break
+
+		if(current_turf.density)
+			to_chat(user, SPAN_XENO("The path over [src] is obstructed!"))
+			return
+
+	// Now we check to make sure the turf on the other side of the tank isn't dense too
+	current_turf = get_step(current_turf, dir_to_go)
+	if(current_turf.density)
+		to_chat(user, SPAN_XENO("The path over [src] is obstructed!"))
+		return
+
+	to_chat(user, SPAN_XENO("We begin to jump over [src]..."))
+	if(!do_after(user, 3 SECONDS, INTERRUPT_ALL, BUSY_ICON_HOSTILE))
+		to_chat(user, SPAN_XENO("We stop jumping over [src]."))
+		return
+
+	user.forceMove(current_turf)
+	to_chat(user, SPAN_XENO("We jump to the other side of [src]."))
 /*
 ** PRESETS SPAWNERS
 */
@@ -220,7 +252,7 @@
 	TANK.update_icon()
 
 /obj/effect/vehicle_spawner/tank/decrepit/load_hardpoints(obj/vehicle/multitile/tank/V)
-	V.add_hardpoint(new /obj/item/hardpoint/support/artillery_module)
+	V.add_hardpoint(new /obj/item/hardpoint/support/weapons_sensor)
 	V.add_hardpoint(new /obj/item/hardpoint/armor/paladin)
 	V.add_hardpoint(new /obj/item/hardpoint/locomotion/treads)
 	V.add_hardpoint(new /obj/item/hardpoint/holder/tank_turret)
@@ -231,7 +263,7 @@
 
 //PRESET: default hardpoints
 /obj/effect/vehicle_spawner/tank/fixed/load_hardpoints(obj/vehicle/multitile/tank/V)
-	V.add_hardpoint(new /obj/item/hardpoint/support/artillery_module)
+	V.add_hardpoint(new /obj/item/hardpoint/support/weapons_sensor)
 	V.add_hardpoint(new /obj/item/hardpoint/armor/paladin)
 	V.add_hardpoint(new /obj/item/hardpoint/locomotion/treads)
 	V.add_hardpoint(new /obj/item/hardpoint/holder/tank_turret)
@@ -264,7 +296,7 @@
 
 //PRESET: autocannon kit
 /obj/effect/vehicle_spawner/tank/fixed/autocannon/load_hardpoints(obj/vehicle/multitile/tank/V)
-	V.add_hardpoint(new /obj/item/hardpoint/support/artillery_module)
+	V.add_hardpoint(new /obj/item/hardpoint/support/weapons_sensor)
 	V.add_hardpoint(new /obj/item/hardpoint/armor/ballistic)
 	V.add_hardpoint(new /obj/item/hardpoint/locomotion/treads)
 	V.add_hardpoint(new /obj/item/hardpoint/holder/tank_turret)

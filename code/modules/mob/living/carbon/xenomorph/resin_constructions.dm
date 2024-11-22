@@ -20,11 +20,6 @@ GLOBAL_VAR_INIT(resin_lz_allowed, FALSE)
 	var/can_build_on_doors = TRUE // if it can be built on a tile with an open door or not
 
 /datum/resin_construction/proc/can_build_here(turf/T, mob/living/carbon/xenomorph/X)
-	var/mob/living/carbon/xenomorph/blocker = locate() in T
-	if(blocker && blocker != X && blocker.stat != DEAD)
-		to_chat(X, SPAN_WARNING("Can't do that with [blocker] in the way!"))
-		return FALSE
-
 	if(!istype(T) || T.is_weedable() < FULLY_WEEDABLE)
 		to_chat(X, SPAN_WARNING("You can't do that here."))
 		return FALSE
@@ -196,7 +191,7 @@ GLOBAL_VAR_INIT(resin_lz_allowed, FALSE)
 		return FALSE
 
 	var/wall_support = FALSE
-	for(var/D in cardinal)
+	for(var/D in GLOB.cardinals)
 		var/turf/CT = get_step(T, D)
 		if(CT)
 			if(CT.density)
@@ -341,11 +336,11 @@ GLOBAL_VAR_INIT(resin_lz_allowed, FALSE)
 	construction_name = "thick resin membrane"
 	build_path = /obj/structure/alien/movable_wall/membrane/thick
 
-// Remote Resin Nodes for originally coded for Resin Whisperers
+// Remote Weed Nodes for originally coded for Resin Whisperers
 /datum/resin_construction/resin_obj/resin_node
-	name = "Resin Node"
+	name = "Weed Node"
 	desc = "Channel energy to spread our influence."
-	construction_name = "resin node"
+	construction_name = "weed node"
 	cost = (XENO_RESIN_MEMBRANE_THICK_COST * 2) // 3x the cost of a thick membrane. At the time of coding that is 95*2 = 190
 
 	build_path = /obj/effect/alien/weeds/node

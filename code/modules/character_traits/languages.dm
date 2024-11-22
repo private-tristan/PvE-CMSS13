@@ -45,6 +45,20 @@
 	applyable = TRUE
 	cost = 1
 
+/datum/character_trait/language/ruspatois
+	language_name = LANGUAGE_RUSPATOIS
+	applyable = TRUE
+	cost = 1
+
+/datum/character_trait/language/english
+	language_name = LANGUAGE_ENGLISH
+	applyable = TRUE
+	cost = 1
+
+/datum/character_trait/language/english/New()
+	..()
+	trait_desc = "Can speak the language [language_name]. Not at all useful if you're in the Marine Corps."
+
 /datum/character_trait/language/primitive
 	language_name = LANGUAGE_MONKEY
 	applyable = FALSE
