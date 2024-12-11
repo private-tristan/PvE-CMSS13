@@ -160,7 +160,7 @@
 
 /obj/item/ammo_magazine/flamer_tank/weak
 	name = "incinerator tank (Weak)"
-	desc = "A fuel tank full of impure napalm, causing it to burn at a signfiicantly lower temperature and be unable to reach as far."
+	desc = "A fuel tank full of impure napalm, causing it to burn at a significantly lower temperature."
 	caliber = "Impure Napalm"
 	flamer_chem = "weaknapalm"
 	max_range = 5
