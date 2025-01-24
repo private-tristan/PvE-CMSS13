@@ -11,6 +11,7 @@
 	desc = "It's an emergency medical kit for those serious boo-boos. With medical training you can fit this in a backpack."
 	icon = 'icons/obj/items/storage/medical.dmi'
 	icon_state = "firstaid"
+	var/open_state = "kit_empty"
 	throw_speed = SPEED_FAST
 	throw_range = 8
 	use_sound = "toolbox"
@@ -51,7 +52,7 @@
 
 /obj/item/storage/firstaid/update_icon()
 	if(content_watchers || !length(contents))
-		icon_state = "kit_empty"
+		icon_state = open_state
 	else
 		icon_state = icon_full
 
@@ -250,6 +251,59 @@
 
 /obj/item/storage/firstaid/surgical/empty/fill_preset_inventory()
 	return
+
+//---------SOFT PACKS---------
+/obj/item/storage/firstaid/softpack
+	name = "first-aid pack"
+	desc = "A soft first aid kit typically containing essential medical supplies for use in the field."
+	icon_state = "softpack"
+	open_state = "softpack_empty"
+	use_sound = 'sound/items/zip.ogg'
+
+/obj/item/storage/firstaid/softpack/fill_preset_inventory()
+	new /obj/item/stack/medical/advanced/bruise_pack(src)
+	new /obj/item/stack/medical/advanced/bruise_pack(src)
+	new /obj/item/stack/medical/advanced/ointment(src)
+	new /obj/item/stack/medical/advanced/ointment(src)
+	new /obj/item/stack/medical/splint(src)
+	new /obj/item/reagent_container/hypospray/autoinjector/oxycodone(src)
+	new /obj/item/reagent_container/hypospray/autoinjector/dexalinp(src)
+
+/obj/item/storage/firstaid/softpack/brute
+	icon_state = "softpack_purple"
+
+/obj/item/storage/firstaid/softpack/brute/fill_preset_inventory()
+	new /obj/item/stack/medical/advanced/bruise_pack(src)
+	new /obj/item/stack/medical/advanced/bruise_pack(src)
+	new /obj/item/stack/medical/advanced/bruise_pack(src)
+	new /obj/item/stack/medical/splint(src)
+	new /obj/item/tool/surgery/surgical_line(src)
+	new /obj/item/reagent_container/hypospray/autoinjector/oxycodone(src)
+	new /obj/item/reagent_container/hypospray/autoinjector/bicaridine(src)
+
+/obj/item/storage/firstaid/softpack/burn
+	icon_state = "softpack_orange"
+
+/obj/item/storage/firstaid/softpack/burn/fill_preset_inventory()
+	new /obj/item/stack/medical/advanced/ointment(src)
+	new /obj/item/stack/medical/advanced/ointment(src)
+	new /obj/item/stack/medical/advanced/ointment(src)
+	new /obj/item/stack/medical/splint(src)
+	new /obj/item/tool/surgery/synthgraft(src)
+	new /obj/item/reagent_container/hypospray/autoinjector/oxycodone(src)
+	new /obj/item/reagent_container/hypospray/autoinjector/kelotane(src)
+
+/obj/item/storage/firstaid/softpack/toxin
+	icon_state = "softpack_green"
+
+/obj/item/storage/firstaid/softpack/toxin/fill_preset_inventory()
+	new /obj/item/reagent_container/pill/russianRed(src)
+	new /obj/item/reagent_container/pill/russianRed(src)
+	new /obj/item/reagent_container/pill/russianRed(src)
+	new /obj/item/reagent_container/pill/russianRed(src)
+	new /obj/item/reagent_container/hypospray/autoinjector/bicaridine(src)
+	new /obj/item/reagent_container/hypospray/autoinjector/bicaridine(src)
+
 
 //---------SYRINGE CASE---------
 
@@ -521,9 +575,13 @@
 	if(issynth(target))
 		return FALSE
 
-	//ai_brain.appraise_inventory() Zonenote: Maybe needed idk
-
 	if(!length(contents) || !COOLDOWN_FINISHED(ai_brain, pill_use_cooldown))
+		return FALSE
+
+	var/obj/item/reagent_container/pill/pill = contents[1]
+	var/datum/reagent/reagent_datum = GLOB.chemical_reagents_list[pill.pill_initial_reagents[1]]
+
+	if((target.reagents.get_reagent_amount(reagent_datum.id) + pill.reagents.total_volume) > reagent_datum.overdose)
 		return FALSE
 
 	if(skilllock && !skillcheck(user, SKILL_MEDICAL, SKILL_MEDICAL_MEDIC))
@@ -537,8 +595,10 @@
 	if(user.put_in_active_hand(pill))
 		remove_from_storage(pill, user)
 		pill.attack(target, user)
-		COOLDOWN_START(ai_brain, pill_use_cooldown, 20 SECONDS)
+		COOLDOWN_START(ai_brain, pill_use_cooldown, 5 SECONDS)
 		sleep(ai_brain.medium_action_delay * ai_brain.action_delay_mult)
+
+	ai_brain.appraise_inventory() // For some reason it removes pill bottles from equipment_map after usage
 
 /obj/item/storage/pill_bottle/proc/choose_color(mob/user)
 	if(!user)

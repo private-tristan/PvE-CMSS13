@@ -1,100 +1,138 @@
 /datum/human_ai_brain
+	/// Lines potentially said when an AI enters combat
 	var/list/enter_combat_lines = list(
-		"*warcry",
-		"Taking fire!",
-		"Getting shot at!",
-		"Engaging hostiles!",
+		"CONTACT!",
 		"Contact!",
-		"Contact contact!",
-		"We've got hostiles!",
-		"Take 'em down!",
-		"Hostile spotted, engaging!",
-		"Enemy hostiles here!",
-		"Being fired upon!",
-		"Blast 'em!",
-	)
-
-	var/list/exit_combat_lines = list(
-		"No more contacts.",
-		"Don't see 'em.",
-		"Going back to regular duties.",
-		"Nothin' left.",
-		"Can't find 'em.",
-		"No hostiles, returning to duties.",
-	)
-
-	var/list/squad_member_death_lines = list(
-		"Fuck! Man down!",
-		"We lost one!",
-		"Man down!",
-		"We're taking losses here!",
-		"Goddamn it.",
-		"Fuck!",
-		"Shit, our squad's down a man!",
-		"Squad integrity's failing!",
-	)
-
-	var/list/grenade_thrown_lines = list(
+		"SHIT- CONTACT!",
+		"CONTACT, FRONT!",
+		"WE GOT CONTACT!",
+		"Look alive!",
+		"GUNS UP!",
+		"There!",
+		"Over there!",
+		"OPEN FIRE!",
+		"Open fire!",
+		"ENGAGE!",
+		"Engage!",
+		"Weapons free!",
+		"Wipe 'em out!",
+		"Light 'em up!",
+		"Cut 'em down!",
+		"Fuck 'em up!",
+		"WASTE THE MOTHERFUCKERS!",
+		"Kill that fucker!",
+		"Ice that fucker!",
+		"Let's rock!",
+		"Eat shit!",
+		"Die, you son of a bitch!",
+		"Get some!",
+		"GET SOME!",
+		"GET SOME, MOTHERFUCKER!",
 		"*warcry",
-		"Nade out!",
-		"Tossing a grenade!",
-		"Smoking 'em out!",
-		"Throwing a nade!",
-		"Grenade out!",
-		"Tossing a nade!",
-		"Pineapple out!",
-		"Fragging 'em!",
 	)
 
+	/// Lines potentially said when an AI exits combat
+	var/list/exit_combat_lines = list(
+		"CEASE FIRE!",
+		"Cease fire!",
+		"Cease your fire!",
+		"Hold your fire!",
+		"HOLD FIRE!",
+		"We're clear!",
+		"We clear?",
+		"Looks clear!",
+		"CLEAR!",
+		"Keep your eyes peeled!",
+		"Might be more- Keep your eyes peeled.",
+	)
+
+	/// Lines potentially said when an AI's squadmate dies
+	var/list/squad_member_death_lines = list(
+		"FUCK!",
+		"SHIT!",
+		"CRAP!",
+		"MOTHERFUCKER!",
+		"GOD DAMN IT!",
+		"WE'RE TAKING HITS HERE!",
+		"THEY GOT THEM-- RETURN THE FUCKING FAVOUR!",
+		"YOU'LL FUCKING PAY, MOTHERFUCKER!",
+		"YOU'LL FUCKING PAY, ASSHOLE!",
+		"THEY'RE DOWN!",
+		"THEY'RE DEAD!",
+		"THEY GOT THEM!",
+	)
+
+	/// Lines potentially said when an AI throws a grenade
+	var/list/grenade_thrown_lines = list(
+		"GRENADE!",
+		"THROWING GRENADE!",
+		"GRENADE, GET CLEAR!",
+		"EAT IT, FUCKER!",
+		"RETURN TO SENDER!",
+		"DELIVERY, MOTHERFUCKER!",
+	)
+
+	/// Lines potentially said when an AI reloads a magazine-fed gun
 	var/list/reload_lines = list(
-		"Mag's dry.",
-		"Reloading.",
+		"RELOADING!",
 		"Reloading!",
-		"I'm out, cover me!",
-		"Reloading, cover me!",
+		"Swapping magazines!",
 		"Swapping mags!",
-		"Swapping mags, cover me!",
-		"Need some cover, reloading!",
-		"Reloading! Cover me, quick!",
-		"Out of ammo!",
-		"Hold up, I’m reloading now!",
-		"Reloading! Keep me covered!",
-		"Switching mags—hold them off!",
-		"I’m dry! Reloading here!",
-		"New mag going in! Cover me!",
-		"Reloading! Watch my six!",
+		"Changing magazines!",
+		"Changing mags!",
+		"Cover me, reloading!",
+		"NEED COVERING FIRE!",
+		"COVER ME!",
+		"RED! RED!-- GREEN!",
+		"I'M RED!",
+		"RED!",
 	)
 
+	/// Lines potentially said when an AI reloads a tube-fed gun
 	var/list/reload_internal_mag_lines = list(
-		"Tube's dry.",
-		"Reloading.",
+		"RELOADING!",
 		"Reloading!",
-		"I'm out, cover me!",
-		"Reloading, cover me!",
-		"Need some cover, reloading!",
-		"Reloading! Cover me, quick!",
-		"Out of ammo!",
-		"Hold up, I’m reloading now!",
-		"Reloading! Keep me covered!",
-		"Reloading—hold them off!",
-		"I’m dry! Reloading here!",
-		"Shells going in! Cover me!",
-		"Reloading! Watch my six!",
+		"Cover me, reloading!",
+		"NEED COVERING FIRE!",
+		"COVER ME!",
+		"RED! RED!-- GREEN!",
+		"I'M RED!",
+		"I NEED A FUCKING SPEEDLOADER- CHRIST!",
+		"RED!",
 	)
 
+	/// Currently unused
 	var/list/need_healing_lines = list(
-		"I need fixing!",
-		"*medic",
-		"Doctor!",
-		"Need a medic!",
-		"Corpsman!",
+		"FUCK ME!",
+		"FUCK!",
+		"SHIT!",
+		"CRAP!",
+		"MOTHERFUCKER!",
+		"GOD DAMN IT!",
+		"JESUS CHRIST!",
+		"BLEEDING!",
+		"MOTHER OF GOD-- NO!",
+		"I'M TAKING HITS HERE!",
+		"I'M HIT!",
+		"I'M HURT!",
+		"INJECTOR GOING IN!",
+		"INJECTOR IN!",
+		"I NEED GAUZE!",
+		"SOMEONE PATCH THIS FUCKING HOLE!",
+		"NEED MORPHINE!",
 	)
 
+	/// Chance that an AI says a voiceline when entering combat
 	var/in_combat_line_chance = 40
+	/// Chance that an AI says a voiceline when exiting combat
 	var/exit_combat_line_chance = 40
+	/// Chance that an AI says a voiceline when a squadmember dies
 	var/squad_member_death_line_chance = 20
+	/// Chance that an AI says a voiceline when they throw a grenade
 	var/grenade_thrown_line_chance = 60
+	/// Chance that an AI says a voiceline when they reload a gun
 	var/reload_line_chance = 40
+	/// Currently unused
 	var/need_healing_line_chance = 90
 
 /datum/human_ai_brain/proc/say_in_combat_line(chance = in_combat_line_chance)

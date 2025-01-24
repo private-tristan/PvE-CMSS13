@@ -1,4 +1,5 @@
 /datum/human_ai_brain
+	/// What items the AI considers when trying to heal brute damage
 	var/static/list/brute_heal_items = list(
 		/obj/item/stack/medical/advanced/bruise_pack,
 		/obj/item/reagent_container/hypospray/autoinjector/bicaridine,
@@ -10,6 +11,7 @@
 		/obj/item/stack/nanopaste,
 	)
 
+	/// What items the AI considers when trying to heal burn damage
 	var/static/list/burn_heal_items = list(
 		/obj/item/stack/medical/advanced/ointment,
 		/obj/item/reagent_container/hypospray/autoinjector/kelotane,
@@ -21,6 +23,7 @@
 		/obj/item/stack/nanopaste,
 	)
 
+	/// What items the AI considers when trying to heal toxin damage
 	var/static/list/tox_heal_items = list(
 		/obj/item/reagent_container/hypospray/autoinjector/dylovene,
 		/obj/item/reagent_container/hypospray/autoinjector/tricord,
@@ -28,6 +31,7 @@
 		/obj/item/storage/pill_bottle/tricord,
 	)
 
+	/// What items the AI considers when trying to heal oxygen damage
 	var/static/list/oxy_heal_items = list(
 		/obj/item/reagent_container/hypospray/autoinjector/dexalinp,
 		/obj/item/reagent_container/hypospray/autoinjector/tricord,
@@ -36,15 +40,18 @@
 		/obj/item/storage/pill_bottle/tricord,
 	)
 
+	/// What items the AI considers when trying to fix bleeding
 	var/static/list/bleed_heal_items = list(
 		/obj/item/stack/medical/advanced/bruise_pack,
 		/obj/item/stack/medical/bruise_pack,
 	)
 
+	/// What items the AI considers when trying to fix bonebreaks
 	var/static/list/bonebreak_heal_items = list(
 		/obj/item/stack/medical/splint,
 	)
 
+	/// What items the AI considers when trying to reduce pain
 	var/static/list/painkiller_items = list(
 		/obj/item/reagent_container/hypospray/autoinjector/tramadol,
 		/obj/item/reagent_container/hypospray/autoinjector/oxycodone,
@@ -59,7 +66,7 @@
 	var/pain_percentage_threshold = 1
 
 	/// Are we currently treating someone?
-	var/healing_someone
+	var/healing_someone = FALSE
 
 	/// Should we try and treat injured friends
 	var/treat_allies = TRUE
@@ -69,6 +76,12 @@
 
 	/// Cooldown on using pills to avoid OD. This isn't the best solution as it prevents the AI from using more than 1 pill of any kind every 20s, but it'll work for now
 	COOLDOWN_DECLARE(pill_use_cooldown)
+
+	/// How many stacks of "wasn't able to treat" this AI has. If these stacks pass a certain threshold, the AI can no longer be treated by others for a small period of time. Stacks decay when not being accumulated
+	var/cant_be_treated_stacks = 0
+
+	/// How many stacks are required to stop this AI from recieving treatment
+	var/treatment_stack_threshold = 10
 
 /datum/human_ai_brain/proc/set_injured_ally(mob/living/new_target)
 	if(!new_target)
@@ -125,10 +138,18 @@
 /datum/human_ai_brain/proc/healing_start_check(mob/living/carbon/human/target)
 	return ((target.health / target.maxHealth) <= healing_start_threshold) || target.is_bleeding() || target.has_broken_limbs()
 
+/datum/human_ai_brain/proc/increment_treatment_stacks()
+	cant_be_treated_stacks++
+	addtimer(CALLBACK(src, PROC_REF(clear_treatment_stacks)), 5 SECONDS, TIMER_UNIQUE | TIMER_NO_HASH_WAIT | TIMER_OVERRIDE)
+
+/datum/human_ai_brain/proc/clear_treatment_stacks()
+	cant_be_treated_stacks = 0
+
 /datum/human_ai_brain/proc/start_healing(mob/living/carbon/human/target)
 	set waitfor = FALSE
 
 	healing_someone = TRUE
+	. = FALSE // if . is TRUE, some form of healing has been done
 
 	// Prioritize brute, then bleed, then broken bones, then burn, then pain, then tox, then oxy.
 	if(target.getBruteLoss() > damage_problem_threshold)
@@ -145,6 +166,7 @@
 			healing_someone = FALSE
 			return
 
+		. = TRUE
 		clear_main_hand()
 		healing_someone = TRUE
 		sleep(short_action_delay * action_delay_mult)
@@ -157,7 +179,7 @@
 			store_item(brute_heal, storage_slot, HUMAN_AI_HEALTHITEMS)
 		else
 			tied_human.drop_held_item(brute_heal)
-#ifdef TESTING
+#if defined(TESTING) || defined(HUMAN_AI_TESTING)
 		to_chat(world, "[tied_human.name] healed brute damage of [target.name] using [brute_heal].")
 #endif
 
@@ -176,6 +198,7 @@
 				healing_someone = FALSE
 				return
 
+			. = TRUE
 			clear_main_hand()
 			healing_someone = TRUE
 			sleep(short_action_delay * action_delay_mult)
@@ -188,7 +211,7 @@
 				store_item(bleed_heal, storage_slot, HUMAN_AI_HEALTHITEMS)
 			else
 				tied_human.drop_held_item(bleed_heal)
-#ifdef TESTING
+#if defined(TESTING) || defined(HUMAN_AI_TESTING)
 			to_chat(world, "[tied_human.name] fixed bleeding of [target.name] using [bleed_heal].")
 #endif
 
@@ -208,6 +231,7 @@
 				healing_someone = FALSE
 				return
 
+			. = TRUE
 			clear_main_hand()
 			healing_someone = TRUE
 			sleep(short_action_delay * action_delay_mult)
@@ -220,7 +244,7 @@
 				store_item(bone_heal, storage_slot, HUMAN_AI_HEALTHITEMS)
 			else
 				tied_human.drop_held_item(bone_heal)
-#ifdef TESTING
+#if defined(TESTING) || defined(HUMAN_AI_TESTING)
 			to_chat(world, "[tied_human.name] splinted a fracture of [target.name] using [bone_heal].")
 #endif
 
@@ -239,6 +263,7 @@
 				healing_someone = FALSE
 				return
 
+			. = TRUE
 			clear_main_hand()
 			healing_someone = TRUE
 			sleep(short_action_delay * action_delay_mult)
@@ -251,7 +276,7 @@
 				store_item(burn_heal, storage_slot, HUMAN_AI_HEALTHITEMS)
 			else
 				tied_human.drop_held_item(burn_heal)
-#ifdef TESTING
+#if defined(TESTING) || defined(HUMAN_AI_TESTING)
 			to_chat(world, "[tied_human.name] healed burn damage of [target.name] using [burn_heal].")
 #endif
 
@@ -271,6 +296,7 @@
 				healing_someone = FALSE
 				return
 
+			. = TRUE
 			clear_main_hand()
 			healing_someone = TRUE
 			sleep(short_action_delay * action_delay_mult)
@@ -283,7 +309,7 @@
 				store_item(painkiller, storage_slot, HUMAN_AI_HEALTHITEMS)
 			else
 				tied_human.drop_held_item(painkiller)
-#ifdef TESTING
+#if defined(TESTING) || defined(HUMAN_AI_TESTING)
 			to_chat(world, "[tied_human.name] healed pain of [target.name] using [painkiller].")
 #endif
 
@@ -302,6 +328,7 @@
 				healing_someone = FALSE
 				return
 
+			. = TRUE
 			clear_main_hand()
 			healing_someone = TRUE
 			sleep(short_action_delay * action_delay_mult)
@@ -314,7 +341,7 @@
 				store_item(tox_heal, storage_slot, HUMAN_AI_HEALTHITEMS)
 			else
 				tied_human.drop_held_item(tox_heal)
-#ifdef TESTING
+#if defined(TESTING) || defined(HUMAN_AI_TESTING)
 			to_chat(world, "[tied_human.name] healed tox damage of [target.name] using [tox_heal].")
 #endif
 
@@ -333,6 +360,7 @@
 				healing_someone = FALSE
 				return
 
+			. = TRUE
 			clear_main_hand()
 			healing_someone = TRUE
 			sleep(short_action_delay * action_delay_mult)
@@ -346,7 +374,7 @@
 				store_item(oxy_heal, storage_slot, HUMAN_AI_HEALTHITEMS)
 			else
 				tied_human.drop_held_item(oxy_heal)
-#ifdef TESTING
+#if defined(TESTING) || defined(HUMAN_AI_TESTING)
 			to_chat(world, "[tied_human.name] healed oxygen damage of [target.name] using [oxy_heal].")
 #endif
 	healing_someone = FALSE

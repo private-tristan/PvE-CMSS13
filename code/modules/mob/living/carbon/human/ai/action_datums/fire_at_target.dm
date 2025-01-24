@@ -17,13 +17,15 @@
 	if(!COOLDOWN_FINISHED(brain, stop_fire_cooldown))
 		return 0
 
-	var/turf/target_turf = brain.target_turf
-	var/should_fire_offscreen = (target_turf && !COOLDOWN_FINISHED(brain, fire_offscreen) && (brain.gun_data.maximum_range <= brain.view_distance))
+	var/should_fire_offscreen = (brain.target_turf && !COOLDOWN_FINISHED(brain, fire_offscreen) && (brain.gun_data.maximum_range > brain.view_distance))
 
 	if(!brain.current_target && !should_fire_offscreen)
 		return 0
 
-	if((get_dist(brain.tied_human, target_turf) > brain.view_distance) && !should_fire_offscreen)
+	if((get_dist(brain.tied_human, brain.target_turf) > brain.view_distance) && !should_fire_offscreen)
+		return 0
+
+	if(!firing_line_check(brain, brain.target_turf))
 		return 0
 
 	if(brain.should_reload())
@@ -71,9 +73,6 @@
 	if((get_dist(tied_human, target_turf) > gun_data.maximum_range) && !should_fire_offscreen)
 		return ONGOING_ACTION_COMPLETED
 
-	if(!firing_line_check(brain, target_turf))
-		return ONGOING_ACTION_UNFINISHED
-
 	tied_human.face_atom(target_turf)
 	tied_human.a_intent_change(INTENT_HARM)
 
@@ -95,14 +94,20 @@
 	var/mob/living/carbon/tied_human = brain.tied_human
 	var/list/turf_list = get_line(get_turf(tied_human), get_turf(target))
 	for(var/turf/tile in turf_list)
-		if(get_dist(tied_human, tile) > brain.view_distance)
+		var/tile_dist = get_dist(tied_human, tile)
+		if(tile_dist > brain.view_distance)
 			continue
 
 		if(tile.density)
 			return FALSE
 
 		for(var/obj/thing in tile)
-			if((thing.projectile_coverage >= PROJECTILE_COVERAGE_MEDIUM) && (thing.unacidable))
+			if(!thing.unacidable || !thing.density)
+				continue
+
+			if((tile_dist <= 3) && (thing.projectile_coverage >= PROJECTILE_COVERAGE_HIGH)) // short range we allow for higher projectile coverage to be shot over
+				return FALSE
+			else if((tile_dist > 3) && thing.projectile_coverage >= PROJECTILE_COVERAGE_MEDIUM)
 				return FALSE
 
 		for(var/mob/living/carbon/human/possible_friendly in tile)

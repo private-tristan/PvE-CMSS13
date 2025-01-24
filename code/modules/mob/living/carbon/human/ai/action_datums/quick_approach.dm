@@ -6,7 +6,7 @@
 	if(!brain.quick_approach)
 		return 0
 
-	if(brain.current_target)
+	if(brain.hold_position)
 		return 0
 
 	return INFINITY

@@ -154,10 +154,14 @@
 	human_ai_menu.tgui_interact(mob)
 
 /client/proc/create_human_ai()
-	set name = "Create Human AI"
+	set name = "Create Human AI - Expanded"
 	set category = "Game Master.HumanAI"
 
 	if(!check_rights(R_DEBUG))
+		return
+
+	if(!SSticker.mode)
+		to_chat(src, SPAN_WARNING("The round hasn't started yet!"))
 		return
 
 	var/mob/living/carbon/human/ai_human = new()
@@ -167,7 +171,7 @@
 		qdel(ai_human)
 		return
 
-	ai_human.face_dir(pick(GLOB.cardinals))
+	ai_human.face_dir(mob.dir)
 	ai_human.forceMove(get_turf(mob))
 	ai_human.get_ai_brain().appraise_inventory(armor = TRUE)
 
@@ -180,13 +184,13 @@
 		return
 
 	if(QDELETED(mob))
-		return //mob is garbage collected
+		return
 
 	if(mob.GetComponent(/datum/component/human_ai))
 		to_chat(usr, SPAN_WARNING("[mob] already has an assigned AI."))
 		return
 
-	if(mob.ckey && alert("This mob is being controlled by [mob.ckey]. Are you sure you wish to add AI to it?","Make AI","Yes","No") != "Yes")
+	if(mob.ckey && tgui_alert("This mob is being controlled by [mob.ckey]. Are you sure you wish to add AI to it?","Make AI", list("Yes","No")) != "Yes")
 		return
 
 	mob.AddComponent(/datum/component/human_ai)
