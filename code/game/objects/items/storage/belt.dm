@@ -694,7 +694,7 @@
 	for(var/i in 1 to storage_slots)
 		new /obj/item/ammo_magazine/sniper/svd(src)
 
-/obj/item/storage/belt/marine/svd/weak/fill_preset_inventory() // SVD
+/obj/item/storage/belt/marine/svd/weak/fill_preset_inventory() 
 	for(var/i in 1 to storage_slots)
 		new /obj/item/ammo_magazine/sniper/svd/weak(src)
 
