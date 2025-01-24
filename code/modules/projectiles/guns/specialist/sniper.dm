@@ -542,5 +542,8 @@
 	recoil = RECOIL_AMOUNT_TIER_5
 	damage_falloff_mult = 0
 
+/obj/item/weapon/gun/rifle/sniper/svd/ap
+	current_mag = /obj/item/ammo_magazine/sniper/svd/ap
+
 /obj/item/weapon/gun/rifle/sniper/svd/pve
 	current_mag = /obj/item/ammo_magazine/sniper/svd/pve

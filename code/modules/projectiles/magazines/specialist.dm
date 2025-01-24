@@ -60,6 +60,11 @@
 	max_rounds = 12
 	gun_type = /obj/item/weapon/gun/rifle/sniper/svd
 
+/obj/item/ammo_magazine/sniper/svd/ap
+	name = "\improper Type-88 Armor Piercing Magazine (7.62x54mmR)"
+	desc = "A large caliber armor piercing magazine for the Type-88 designated marksman rifle."
+	default_ammo = /datum/ammo/bullet/sniper/upp/ap
+
 /obj/item/ammo_magazine/sniper/svd/pve
 	name = "\improper Type-88 HP Magazine (7.62x54mmR)"
 	default_ammo = /datum/ammo/bullet/sniper/upp_pve

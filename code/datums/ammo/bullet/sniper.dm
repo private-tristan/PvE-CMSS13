@@ -95,8 +95,12 @@
 	pushback(M, P, 3)
 
 /datum/ammo/bullet/sniper/upp
-	name = "armor-piercing sniper bullet"
+	name = "sniper bullet"
 	damage = 80
+	penetration = ARMOR_PENETRATION_TIER_1
+
+/datum/ammo/bullet/sniper/upp/ap
+	name = "armor-piercing sniper bullet"
 	penetration = ARMOR_PENETRATION_TIER_10
 
 /datum/ammo/bullet/sniper/upp_pve
