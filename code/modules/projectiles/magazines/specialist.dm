@@ -51,8 +51,8 @@
 //Type 88 //Based on the actual Dragunov designated marksman rifle.
 
 /obj/item/ammo_magazine/sniper/svd
-	name = "\improper Type-88 Magazine (7.62x54mmR)"
-	desc = "A large caliber magazine for the Type-88 designated marksman rifle."
+	name = "\improper Type-88 Armor Piercing Magazine (7.62x54mmR)"
+	desc = "A large caliber armor piercing magazine for the Type-88 designated marksman rifle."
 	caliber = "7.62x54mmR"
 	icon = 'icons/obj/items/weapons/guns/ammo_by_faction/upp.dmi'
 	icon_state = "type88mag"
@@ -60,10 +60,10 @@
 	max_rounds = 12
 	gun_type = /obj/item/weapon/gun/rifle/sniper/svd
 
-/obj/item/ammo_magazine/sniper/svd/ap
-	name = "\improper Type-88 Armor Piercing Magazine (7.62x54mmR)"
-	desc = "A large caliber armor piercing magazine for the Type-88 designated marksman rifle."
-	default_ammo = /datum/ammo/bullet/sniper/upp/ap
+/obj/item/ammo_magazine/sniper/svd/weak
+	name = "\improper Type-88 Magazine (7.62x54mmR)"
+	desc = "A large caliber magazine for the Type-88 designated marksman rifle."
+	default_ammo = /datum/ammo/bullet/sniper/upp/weak
 
 /obj/item/ammo_magazine/sniper/svd/pve
 	name = "\improper Type-88 HP Magazine (7.62x54mmR)"

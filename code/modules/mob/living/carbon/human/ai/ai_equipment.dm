@@ -159,10 +159,10 @@
 
 	new_human.equip_to_slot_or_del(new /obj/item/device/radio/headset/distress/CLF(new_human), WEAR_L_EAR)
 
-/datum/equipment_preset/clf/sniper/svd/ap
-	name = "CLF Sniper (AI) (AP SVD)"
+/datum/equipment_preset/clf/sniper/svd/weak
+	name = "CLF Sniper (AI) (Weak SVD)"
 
-/datum/equipment_preset/clf/sniper/svd/ap/load_gear(mob/living/carbon/human/new_human)
+/datum/equipment_preset/clf/sniper/svd/weak/load_gear(mob/living/carbon/human/new_human)
 	var/obj/item/clothing/under/colonist/clf/jumpsuit = new()
 	var/obj/item/clothing/accessory/storage/webbing/W = new()
 	jumpsuit.attach_accessory(new_human, W)
@@ -175,8 +175,8 @@
 	new_human.equip_to_slot_or_del(new /obj/item/device/flashlight(new_human), WEAR_L_STORE)
 	new_human.equip_to_slot_or_del(new /obj/item/storage/pouch/firstaid/ert(new_human), WEAR_R_STORE)
 
-	new_human.equip_to_slot_or_del(new /obj/item/storage/belt/marine/svd/ap(new_human), WEAR_WAIST)
-	new_human.put_in_active_hand(new /obj/item/weapon/gun/rifle/sniper/svd/ap(new_human))
+	new_human.equip_to_slot_or_del(new /obj/item/storage/belt/marine/svd/weak(new_human), WEAR_WAIST)
+	new_human.put_in_active_hand(new /obj/item/weapon/gun/rifle/sniper/svd/weak(new_human))
 
 	new_human.equip_to_slot_or_del(new /obj/item/device/radio/headset/distress/CLF(new_human), WEAR_L_EAR)
 
@@ -257,10 +257,10 @@
 	//waist
 	new_human.equip_to_slot_or_del(new /obj/item/storage/belt/marine/svd(new_human), WEAR_WAIST)
 
-/datum/equipment_preset/upp/sniper/ap
-	name = "UPP Marksman (AP)"
+/datum/equipment_preset/upp/sniper/weak
+	name = "UPP Marksman (Weak)"
 
-/datum/equipment_preset/upp/sniper/ap/load_gear(mob/living/carbon/human/new_human)
+/datum/equipment_preset/upp/sniper/weak/load_gear(mob/living/carbon/human/new_human)
 	//back
 	new_human.equip_to_slot_or_del(new /obj/item/storage/backpack/lightpack/upp, WEAR_BACK)
 	new_human.equip_to_slot_or_del(new /obj/item/tool/extinguisher, WEAR_IN_BACK) //1
@@ -290,11 +290,11 @@
 	var/obj/item/clothing/accessory/storage/black_vest/W = new()
 	UPP.attach_accessory(new_human, W)
 	for(var/i in 1 to W.hold.storage_slots)
-		new_human.equip_to_slot_or_del(new /obj/item/ammo_magazine/sniper/svd/ap, WEAR_IN_ACCESSORY)
-	new_human.equip_to_slot_or_del(new /obj/item/weapon/gun/rifle/sniper/svd/ap, WEAR_J_STORE)
-	new_human.equip_to_slot_or_del(new /obj/item/ammo_magazine/sniper/svd/ap, WEAR_IN_JACKET)
+		new_human.equip_to_slot_or_del(new /obj/item/ammo_magazine/sniper/svd/weak, WEAR_IN_ACCESSORY)
+	new_human.equip_to_slot_or_del(new /obj/item/weapon/gun/rifle/sniper/svd/weak, WEAR_J_STORE)
+	new_human.equip_to_slot_or_del(new /obj/item/ammo_magazine/sniper/svd/weak, WEAR_IN_JACKET)
 	//waist
-	new_human.equip_to_slot_or_del(new /obj/item/storage/belt/marine/svd/ap(new_human), WEAR_WAIST)
+	new_human.equip_to_slot_or_del(new /obj/item/storage/belt/marine/svd/weak(new_human), WEAR_WAIST)
 
 
 /datum/equipment_preset/other/freelancer/standard/rifleman

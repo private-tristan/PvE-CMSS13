@@ -694,9 +694,9 @@
 	for(var/i in 1 to storage_slots)
 		new /obj/item/ammo_magazine/sniper/svd(src)
 
-/obj/item/storage/belt/marine/svd/ap/fill_preset_inventory() // SVD
+/obj/item/storage/belt/marine/svd/weak/fill_preset_inventory() // SVD
 	for(var/i in 1 to storage_slots)
-		new /obj/item/ammo_magazine/sniper/svd/ap(src)
+		new /obj/item/ammo_magazine/sniper/svd/weak(src)
 
 /obj/item/storage/belt/marine/smartgunner
 	name = "\improper M280 pattern smartgunner drum belt"
