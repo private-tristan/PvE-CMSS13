@@ -138,6 +138,7 @@
 	desc = "Some used gauze."
 	icon_state = "bandages_prop"
 	icon = 'icons/monkey_icos.dmi'
+	w_class = SIZE_TINY
 
 /obj/item/prop/colony/folded_bedroll
 	name = "folded bedroll"
@@ -388,7 +389,7 @@
 	icon_state = "sheet-scrap"
 	item_state = ""
 	desc = "A rusty piece of scrap metal."
-	w_class = SIZE_MEDIUM
+	w_class = SIZE_SMALL
 
 /obj/item/prop/rock
 	name = "rock"

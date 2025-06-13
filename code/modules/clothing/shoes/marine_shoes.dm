@@ -28,22 +28,14 @@
 		/obj/item/tool/surgery/scalpel,
 		/obj/item/weapon/straight_razor,
 		/obj/item/weapon/knife/marine,
-		/obj/item/weapon/knife/marine/sas,
-		/obj/item/weapon/knife/marine/kabar,
 	)
 	drop_sound = "armorequip"
 
 /obj/item/clothing/shoes/marine/update_icon()
-	if(stored_item)
-		icon_state = "[initial(icon_state)]-1"
-	else
-		icon_state = initial(icon_state)
-
-/obj/item/clothing/shoes/marine/update_icon()
-	if(stored_item && !armor_stage)
-		icon_state = "[initial(icon_state)]-1"
-	else
-		if(!armor_stage)
+	if(!armor_stage)
+		if(stored_item)
+			icon_state = "[initial(icon_state)]-1"
+		else
 			icon_state = initial(icon_state)
 
 /obj/item/clothing/shoes/marine/knife
@@ -68,7 +60,7 @@
 	desc = "A pair of standard issue black United States Army combat boots."
 
 /obj/item/clothing/shoes/marine/army/knife
-	spawn_item_type = /obj/item/weapon/knife/marine
+	spawn_item_type = /obj/item/weapon/knife/marine/baker
 
 /obj/item/clothing/shoes/marine/upp
 	name = "\improper UPP combat boots"
@@ -99,6 +91,9 @@
 /obj/item/clothing/shoes/marine/civilian
 	name = "rugged boots"
 	desc = "A pair of black boots not so dissimilar from military combat boots, a likely culprit for their inspiration. They'll get the job done, whether that's hiking, or kicking in teeth."
+
+/obj/item/clothing/shoes/marine/civilian/knife
+	spawn_item_type = /obj/item/attachable/bayonet
 
 /obj/item/clothing/shoes/marine/civilian/brown
 	icon_state = "marine_brown"
